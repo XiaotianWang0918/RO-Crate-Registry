@@ -65,6 +65,12 @@
   </div>
 </nav>
 
+<script>
+  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+  return new bootstrap.Popover(popoverTriggerEl)
+  });
+</script>
 <link rel="stylesheet" href="{% static 'css/detail.css' %}" >
 <div class="container mt-4 mb-4">
   <div class="row bg-white">
@@ -80,14 +86,12 @@
                               {% if crate.authors.all %}
                               <dt>Authors:</dt>
                               <dd>
-                                <span class="label label-primary">
                                 {% for author in crate.authors.all %}
-                                <a href="{{ author.id }}">{{author.name}}</a>&nbsp;&nbsp;
+                                <a href="{{author.id}}">{{author.name}}</a>&nbsp;&nbsp;
                                 {% endfor %}
-                                </span>
                               </dd>
                               {% endif %}
-                              {% if crate.publisher %}
+                              {% if crate.publisher.all|length > 0 %}
                               <dt>Publisher:</dt>
                               <dd>
                                 <span class="label label-primary">
@@ -155,6 +159,8 @@
           </div>
           <div class="col-md-4 bg-white">
               <div class="wrapper wrapper-content project-manager">
+                <div class="ibox">
+                <div class="ibox-content">
                 <dl class="dl-horizontal">
                   <dt>URL:</dt> <dd><a href="{{crate.url}}">{{crate.url}}</a></dd>
                   {% if crate.identifier %}
@@ -169,9 +175,15 @@
                   <dd><a href="{{cit.id}}">{{cit.name}}</a></dd>
                   {% endfor %}
                   {% endif %}
+                  <dt>Related RO-Crates:</dt> 
+                  {% for re in related|slice:":5" %}
+                  <dd><a href="/crate/{{re.id}}">{{re.name}}</a></dd>
+                  {% endfor %}
+                  <dd><a href="/related/{{crate.id}}">Find More</a></dd>
                 </dl>
 
-                
+                </div>
+                </div>
               </div>
           </div>
       </div>

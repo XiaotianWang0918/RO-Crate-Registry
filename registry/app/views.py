@@ -5,7 +5,8 @@ from django.shortcuts import redirect, render
 from .models import Citation, Crate, Organization, Person, Entity
 from rocrate.rocrate import ROCrate, Entity as RO_Entity
 from .documents import CrateDocument
-from elasticsearch_dsl import Q
+from elasticsearch_dsl.query import MoreLikeThis
+from elasticsearch_dsl import Q, Search
 import urllib.request
 from django.contrib import messages
 from django.template.loader import render_to_string
@@ -110,7 +111,48 @@ def search(request):
 
 def detail(request, cid):
     crate = Crate.objects.filter(id=cid).first()
-    return render(request, 'detail.html', {'crate': crate})
+    # s = Search()
+    # s = s.query(MoreLikeThis(like={"_index": "crates", "_id": cid}, fields=[
+    #     'name',
+    #     'description',
+    #     'keywords',
+    #     'dicipline',
+    #     'license',
+    #     'identifier',
+    #     ]))
+    # print(s.execute().to_dict())
+    related_query = Q("more_like_this", fields=[
+        'name',
+        'description',
+        'keywords',
+        'dicipline',
+        'license',
+        ], like=[
+            {
+                "_index": "crates",
+                "_id": str(cid),
+            }
+        ], min_term_freq=1)
+    result = CrateDocument.search().query(related_query)
+    resultSet = result.to_queryset()
+    return render(request, 'detail.html', {'crate': crate, 'related': resultSet})
+
+def related_search(request, cid):
+    related_query = Q("more_like_this", fields=[
+        'name',
+        'description',
+        'keywords',
+        'dicipline',
+        'license',
+        ], like=[
+            {
+                "_index": "crates",
+                "_id": str(cid),
+            }
+        ], min_term_freq=1)
+    result = CrateDocument.search().query(related_query)
+    resultSet = result.to_queryset()
+    return render(request, 'result.html', {'resultset': resultSet})
 
 def register(request):
     if request.method == 'GET':
