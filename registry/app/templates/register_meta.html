@@ -1,0 +1,294 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block title %} RO-Crate Registry - Register{% endblock title %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/register_meta.css' %}" >
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">RO-Crate Registry</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        {% comment %} <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Dropdown
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </li> {% endcomment %}
+        
+        <form method="post" class="d-flex" action="/search">
+        {% csrf_token %}
+        <div class="input-group mx-auto" style="width: 500px">
+          <select class="form-select float:left" name="field">
+            <option selected>All</option>
+            <option>Person</option>
+            <option>Organizations</option>
+            <option>Projects</option>
+            <option>Publications</option>
+            <option>Data Entities</option>
+            <option>Types</option>
+            <option>Profiles</option>
+            <option>Licenses</option>
+            <option>Diciplines</option>
+            <option>Programming Languages</option>
+          </select>
+          <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
+            <input type="search" name="search" class="form-control" value="{{ request.GET.q }}"/>
+          </div>
+          <button type="submit" class="btn btn-primary mx-auto float:right">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+      </ul>
+
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link"  href="#">Help</a>
+        </li>
+        {% comment %} <li class="nav-item">
+          <a class="nav-link" href="#">Register</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Log in</a>
+        </li> {% endcomment %}
+      </ul>
+    </div>
+  </div>
+</nav>
+{% include 'messages.html' %}
+
+<div class="container mt-4 mb-4 bg-white">
+<form method="post">
+  {% csrf_token %}
+    <div class="form-group col-md-6 mb-3">
+      <label for="name">Name</label>
+      <input type="text" class="form-control" name="name" value="{{name}}" readonly>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <label for="url">URL</label>
+      <input type="text" class="form-control" name="url" value="{{url}}" readonly>
+    </div>
+    <div class="form-group mb-3">
+      <label for="description">Description</label>
+      <textarea type="text" class="form-control" name="description" readonly> {{description}}</textarea>
+    </div>
+    
+    <div class="form-group col-md-6 mb-3">
+      <label for="datePublished">DatePublished</label>
+      <input type="datetime" class="form-control" name="datePublished" value="{{datePublished}}" readonly>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <label for="license">License</label>
+      <input type="text" class="form-control" name="license" value="{{license}}" readonly>
+    </div>
+    <div class="mb-3">
+      <script type="module">
+        import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+        Tags.init();
+      </script>
+      <label for="authors">Authors</label>
+      <div class="input-group" id="author_select">
+        <div class="form-group col-md-6">
+          <select class="form-select" id="author" name="authors[]" multiple data-allow-clear="true" data-clear-end="true" data-full-width="false" data-suggestions-threshold="0">
+              <option disabled hidden value="">Choose a tag...</option>
+              {% for person in people %}
+              {% if person in authors %}
+              <option value={{person.id}} selected="selected">{{person.name}}</option>
+              {% else %}
+              <option value={{person.id}}>{{person.name}}</option>
+              {% endif %}
+              {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#AuthorModal">Add</button>
+      </div>
+    <script type="module">
+      import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+      Tags.init();
+    </script>
+    </div>
+    <div class="form-group mb-3">
+      <label for="identifier">Publisher</label>
+      <div class="input-group" id="publisher_select">
+      <div class="form-group col-md-6">
+      <select class="form-select" aria-label="Default select example" name="publisher">
+        <option value="none" selected>Select an Existing Organization</option>
+        {% for organization in organizations %}
+        <option value="{{organization.id}}">{{organization.name}}</option>
+        {% endfor %}
+      </select>
+      </div>
+      <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#PublisherModal">Add</button>
+      </div>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <label for="citation">Citation</label>
+      <input type="text" class="form-control" name="citation_id" {% if citation != none %} value="{{citation.id}}" {% endif %} placeholder="DOI identifier">
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <input type="text" class="form-control" name="citation_name" {% if citation != none %} value="{{citation.name}}" {% endif %} placeholder="name">
+    </div>
+      <div class="form-group col-md-6 mb-3">
+        <label for="keywords">Keywords</label>
+        <select class="form-select" id="keywords" name="keywords[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
+          <option disabled hidden value="">Choose a tag...</option>
+          {% for keyword in keywords %}
+          <option value="{{keyword}}" selected="selected">{{keyword}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-md-6 mb-3">
+        <script type="module">
+          import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+          Tags.init();
+        </script>
+        <label for="identifier">Identifier</label>
+        <select class="form-select" id="identifier" name="identifier[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
+          <option disabled hidden value="">Choose a tag...</option>
+          {% for iden in identifier %}
+          <option value="{{iden}}" selected="selected">{{iden}}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group col-md-6 mb-3">
+        <label for="dicipline">Dicipline</label>
+        <input type="text" class="form-control" name="dicipline" {% if dicipline != none %} value="{{dicipline}}" {% endif %}>
+      </div>
+
+    <button type="submit" class="btn btn-primary mt-3 mb-3">Submit</button>
+  </form>
+</div>
+
+
+
+<div class="modal fade" id="AuthorModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add a New Author</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="saveauthor">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="author_id" class="col-form-label text-body">ID (ORCID)</label>
+            <input type="text" class="form-control" name="author_id">
+          </div>
+          <div class="form-group">
+            <label for="author_name" class="col-form-label text-body">Name</label>
+            <input class="form-control" name="author_name">
+          </div>
+          {% for author in authors %}
+          <input type="hidden" name="authors[]", value={{author.id}}>
+          {% endfor %}
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+        <button type="submit" form="saveauthor" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var myModal = new bootstrap.Modal(document.getElementById('AuthorModal'), {
+      keyboard: false
+    })
+    $("#saveauthor").submit(function (e) {
+      // preventing from page reload and default actions
+      e.preventDefault();
+      // serialize the data for sending the form data.
+      var serializedData = $(this).serialize();
+      // make POST ajax call
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_author' %}",
+          data: serializedData,
+          success: function (response) {
+              // on successfull creating object
+              // 1. clear the form.
+              // 2. hide myModal
+              // 3. update authors
+              $("#saveauthor").trigger('reset');
+              myModal.hide();
+              $('#author_select').html(response);
+          },
+          error: function (response) {
+              // alert the error if any error occured
+              alert(response["responseJSON"]["error"]);
+          }
+      });
+  });
+  </script>
+</div>
+
+<div class="modal fade" id="PublisherModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Add a New Publisher</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="savepublisher">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="author_id" class="col-form-label text-body">ID</label>
+            <input type="text" class="form-control" name="organization_id">
+          </div>
+          <div class="form-group">
+            <label for="author_name" class="col-form-label text-body">Name</label>
+            <input type="text" class="form-control" name="organization_name">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+        <button type="submit" form="savepublisher" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    var myModal = new bootstrap.Modal(document.getElementById('PublisherModal'), {
+      keyboard: false
+    })
+    $("#savepublisher").submit(function (e) {
+      // preventing from page reload and default actions
+      e.preventDefault();
+      // serialize the data for sending the form data.
+      var serializedData = $(this).serialize();
+      // make POST ajax call
+      $.ajax({
+          type: 'POST',
+          url: "{% url 'save_publisher' %}",
+          data: serializedData,
+          success: function (response) {
+              // on successfull creating object
+              // 1. clear the form.
+              // 2. hide myModal
+              // 3. update authors
+              $("#savepublisher").trigger('reset');
+              myModal.hide();
+              $('#publisher_select').html(response);
+          },
+          error: function (response) {
+              // alert the error if any error occured
+              alert(response["responseJSON"]["error"]);
+          }
+      });
+  });
+  </script>
+</div>
+
+{% endblock %}
