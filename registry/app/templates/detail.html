@@ -37,7 +37,7 @@
             <option>Types</option>
             <option>Profiles</option>
             <option>Licenses</option>
-            <option>Diciplines</option>
+            <option>Disciplines</option>
             <option>Programming Languages</option>
           </select>
           <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
@@ -65,12 +65,7 @@
   </div>
 </nav>
 
-<script>
-  var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-  var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-  return new bootstrap.Popover(popoverTriggerEl)
-  });
-</script>
+{% include 'messages.html' %}
 <link rel="stylesheet" href="{% static 'css/detail.css' %}" >
 <div class="container mt-4 mb-4">
   <div class="row bg-white">
@@ -87,7 +82,7 @@
                               <dt>Authors:</dt>
                               <dd>
                                 {% for author in crate.authors.all %}
-                                <a href="{{author.id}}">{{author.name}}</a>&nbsp;&nbsp;
+                                <a href="{{author.ocrid}}">{{author.name}}</a>&nbsp;&nbsp;
                                 {% endfor %}
                               </dd>
                               {% endif %}
@@ -122,7 +117,7 @@
                               </div>
                           </div>
                           <div class="row">
-                              <div class="col-lg-5">
+                              <div class="col-lg-8">
                                   <dl class="dl-horizontal">
                                       <dt>Published:</dt> <dd>{{crate.datePublished}}</dd>
                                       {% if crate.keywords %}
@@ -135,13 +130,20 @@
                                           </span>
                                       </dd>
                                       {% endif %}
-                                      {% if crate.dicipline %}
-                                      <dt>Dicipline:</dt> <dd>{{crate.dicipline}}</dd>
+                                      {% if crate.discipline %}
+                                      <dt>Discipline:</dt>
+                                      <dd>
+                                        <span class="label label-primary">
+                                          {% for dis in crate.discipline %}
+                                          <a href="/search?field=Disciplines&q={{dis}}">{{dis}}</a>&nbsp;&nbsp;
+                                          {% endfor %}
+                                          </span>
+                                      </dd>
                                       {% endif %}
-                                      <dt>License:</dt> <dd>{{crate.license}}</dd>
+                                      <dt>License:</dt> <dd><a href="/search?field=Licenses&q={{crate.license}}">{{crate.license}}</a></dd>
                                   </dl>
                               </div>
-                              <div class="col-lg-7" id="cluster_info">
+                              <div class="col-lg-4" id="cluster_info">
                                   <dl class="dl-horizontal">
   
                                       {% comment %} <dt>Last Updated:</dt> <dd></dd> {% endcomment %}
@@ -169,7 +171,7 @@
                   <dd><a href="{{iden}}">{{iden}}</a></dd>
                   {% endfor %}
                   {% endif %}
-                  {% if crate.citation %}
+                  {% if crate.citation.all|length > 0 %}
                   <dt>Citation:</dt>
                   {% for cit in crate.citation.all %}
                   <dd><a href="{{cit.id}}">{{cit.name}}</a></dd>
@@ -179,7 +181,7 @@
                   {% for re in related|slice:":5" %}
                   <dd><a href="/crate/{{re.id}}">{{re.name}}</a></dd>
                   {% endfor %}
-                  <dd><a href="/related/{{crate.id}}">Find More</a></dd>
+                  <dd><a href="/search?field=Related&q={{crate.id}}&sort=Relevance">Find More</a></dd>
                 </dl>
 
                 </div>

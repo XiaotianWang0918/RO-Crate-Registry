@@ -1,7 +1,7 @@
 from types import DynamicClassAttribute
 from django_elasticsearch_dsl import Document, fields
 from django_elasticsearch_dsl.registries import registry
-from .models import Citation, Crate, Entity, Organization, Person
+from .models import Citation, Crate, Entity, Organization, People
 
 @registry.register_document
 class CrateDocument(Document):
@@ -9,14 +9,14 @@ class CrateDocument(Document):
         'name': fields.TextField(),
         'entity_id': fields.TextField(),
         'description': fields.TextField(),
-        'type': fields.ListField(fields.TextField()),
+        'type': fields.ListField(fields.KeywordField()),
         'dateCreated': fields.DateField(),
         'dateModified': fields.DateField(),
-        'programmingLanguage': fields.TextField(),
+        'programmingLanguage': fields.KeywordField(),
     })
 
     authors = fields.NestedField(properties={
-        'id': fields.TextField(),
+        'ocrid': fields.TextField(),
         'name': fields.TextField(),
     })
 
@@ -32,7 +32,9 @@ class CrateDocument(Document):
 
     keywords = fields.ListField(fields.TextField())
     identifier = fields.ListField(fields.TextField())
-    
+    license = fields.KeywordField()
+    discipline = fields.ListField(fields.KeywordField())
+    datePublished = fields.DateField()
     class Index:
         name = 'crates'
         settings = {'number_of_shards': 1,
@@ -40,18 +42,15 @@ class CrateDocument(Document):
     
     class Django:
         model = Crate
-        related_models = [Entity, Person, Organization, Citation]
+        related_models = [Entity, People, Organization, Citation]
         fields = [
             'name',
             'description',
-            'datePublished',
-            'license',
             'url',
-            'dicipline',
         ]
 
     def get_instances_from_related(self, related_instance):
-        if isinstance(related_instance, Person):
+        if isinstance(related_instance, People):
             return related_instance.crates.all()
         elif isinstance(related_instance, Organization):
             return related_instance.crates.all()

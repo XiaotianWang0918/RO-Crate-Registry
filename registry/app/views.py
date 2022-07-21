@@ -1,8 +1,8 @@
-
+from datetime import datetime, date
 from urllib import response
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
-from .models import Citation, Crate, Organization, Person, Entity
+from .models import Citation, Crate, Organization, People, Entity
 from rocrate.rocrate import ROCrate, Entity as RO_Entity
 from .documents import CrateDocument
 from elasticsearch_dsl.query import MoreLikeThis
@@ -10,6 +10,10 @@ from elasticsearch_dsl import Q, Search
 import urllib.request
 from django.contrib import messages
 from django.template.loader import render_to_string
+from django.core.paginator import Paginator
+from app.facet import CrateSearch
+from django.db.models import Case, When
+from django.db.models.fields import IntegerField
 
 # Create your views here.
 def portal(request):
@@ -17,12 +21,21 @@ def portal(request):
         return render(request, 'portal.html')
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s"%(field,search))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
 
 def search(request):
     if request.method == 'GET':
         search = request.GET.get('q')
         field = request.GET.get('field')
+        disciplines = request.GET.getlist('discipline')
+        licenses = request.GET.getlist('license')
+        types = request.GET.getlist('type')
+        programs = request.GET.getlist('pro')
+        startDate = request.GET.get('startDate')
+        # sdate = datetime.datetime.strptime(startDate, '%Y-%m-%d').date()
+        endDate = request.GET.get('endDate')
+        # edate = datetime.datetime.strptime(endDate, '%Y-%m-%d').date()
+        filter = {"discipline":disciplines, "license":licenses, "type":types, "programmingLanguage":programs}
         if field == "All":
             entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'name',
@@ -30,7 +43,7 @@ def search(request):
                 'license',
                 'keywords',
                 'identifier',
-                'dicipline',
+                'discipline',
                 ])
             entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.name',
@@ -41,7 +54,7 @@ def search(request):
                 ])))
             author_query = Q("nested", path="authors", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'authors.name',
-                'authors.id',
+                'authors.ocrid',
                 ])))
             organization_query = Q("nested", path="publisher", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'publisher.name',
@@ -51,62 +64,97 @@ def search(request):
                 'citation.name',
                 'citation.id',
                 ])))
-            result = CrateDocument.search().query(entry_query | entity_query | author_query | organization_query | citation_query)
-        
+            q = entry_query | entity_query | author_query | organization_query | citation_query
+            # result = CrateDocument.search().query(entry_query | entity_query | author_query | organization_query | citation_query)
+
         elif field == "Data Entities":
-            entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.name',
                 'entities.type',
                 'entities.entity_id',
                 'entities.description',
                 'entities.programmingLanguage',
                 ])))
-            result = CrateDocument.search().query(entity_query)
         
         elif field == "Person": #TODO: creator, publisher?
-            author_query = Q("nested", path="authors", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="authors", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'authors.name',
-                'authors.id',
+                'authors.ocrid',
                 ])))
-            result = CrateDocument.search().query(author_query)
+            
         elif field == "Publications":
-            citation_query = Q("nested", path="citation", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="citation", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'citation.name',
                 'citation.id',
                 ])))
-            result = CrateDocument.search().query(citation_query)
+            
         elif field == "Organizations":
-            organization_query = Q("nested", path="publisher", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="publisher", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'publisher.name',
                 'publisher.id',
                 ])))
-            result = CrateDocument.search().query(organization_query)
+            
         elif field == "Types" or field == "Profiles": #TODO: Profiles
-            entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.type',
                 ])))
-            result = CrateDocument.search().query(entity_query)
+            
         elif field == "Programming Languages": #TODO: programming language id, altername
-            entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.programmingLanguage',
                 ])))
-            result = CrateDocument.search().query(entity_query)
+            
         elif field == "Licenses":
-            entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
+            q = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'license',
                 ])
-            result = CrateDocument.search().query(entry_query)
-        elif field == "Diciplines":
-            entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
-                'dicipline',
+            
+        elif field == "Disciplines":
+            q = Q("multi_match", query=search, fuzziness="auto", fields=[
+                'discipline',
                 ])
-            result = CrateDocument.search().query(entry_query)
+        elif field == "Related":
+            q = Q("more_like_this", fields=[
+                'name',
+                'keywords',
+                'discipline',
+                'license',
+                'authors',
+                ], like=[
+                    {
+                        "_index": "crates",
+                        "_id": search,
+                    }
+                ], min_term_freq=1, minimum_should_match=5)
 
-        resultSet = result.to_queryset()
-        return render(request, 'result.html', {'resultset': resultSet})
+        datefilter = {}
+        if startDate not in ("","undefined",None):
+            datefilter["gte"] = startDate
+        if endDate not in ("","undefined",None):
+            datefilter["lte"] = endDate
+
+        crate_search = CrateSearch("", filters=filter, q=q, datefilter=datefilter)
+            
+        response = crate_search.execute()
+        resultSet = to_queryset(response) 
+        sort = request.GET.get('sort')
+        if sort == "Date":
+            resultSet = resultSet.order_by('datePublished')
+        elif sort == "Title":
+            resultSet = resultSet.order_by('name')
+        paginator = Paginator(resultSet, 5)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'result.html', {
+            'resultset': page_obj, 
+            'discipline':response.facets.discipline, 
+            'license':response.facets.license,
+            'type': response.facets.type,
+            'programming': response.facets.programmingLanguage,
+            })
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s"%(field,search))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
 
 
 def detail(request, cid):
@@ -116,43 +164,26 @@ def detail(request, cid):
     #     'name',
     #     'description',
     #     'keywords',
-    #     'dicipline',
+    #     'discipline',
     #     'license',
     #     'identifier',
     #     ]))
     # print(s.execute().to_dict())
     related_query = Q("more_like_this", fields=[
         'name',
-        'description',
         'keywords',
-        'dicipline',
+        'discipline',
         'license',
+        'authors',
         ], like=[
             {
                 "_index": "crates",
                 "_id": str(cid),
             }
-        ], min_term_freq=1)
+        ], min_term_freq=1, minimum_should_match=5)
     result = CrateDocument.search().query(related_query)
     resultSet = result.to_queryset()
     return render(request, 'detail.html', {'crate': crate, 'related': resultSet})
-
-def related_search(request, cid):
-    related_query = Q("more_like_this", fields=[
-        'name',
-        'description',
-        'keywords',
-        'dicipline',
-        'license',
-        ], like=[
-            {
-                "_index": "crates",
-                "_id": str(cid),
-            }
-        ], min_term_freq=1)
-    result = CrateDocument.search().query(related_query)
-    resultSet = result.to_queryset()
-    return render(request, 'result.html', {'resultset': resultSet})
 
 def register(request):
     if request.method == 'GET':
@@ -172,7 +203,7 @@ def metaregister(request):
     inputURL = request.GET.get('url')
     ro = ROCrate(filename)
     if request.method == 'GET':
-        people = Person.objects.all()
+        people = People.objects.all()
 
         if "url" in ro.root_dataset:
             url = ro.root_dataset['url']
@@ -188,11 +219,11 @@ def metaregister(request):
         if "author" in ro.root_dataset:
             if isinstance(ro.root_dataset['author'], list):
                 for author in ro.root_dataset['author']:
-                    au, created = Person.objects.get_or_create(id = author['@id'], name = author['name'])
+                    au, created = People.objects.get_or_create(ocrid = author['@id'], name = author['name'])
                     au.save()
                     authors.append(au)
             else:
-                au, created = Person.objects.get_or_create(id = ro.root_dataset['author']['@id'], name = ro.root_dataset['author']['name'])
+                au, created = People.objects.get_or_create(ocrid = ro.root_dataset['author']['@id'], name = ro.root_dataset['author']['name'])
                 au.save()
                 authors.append(au)
 
@@ -210,10 +241,6 @@ def metaregister(request):
                         identifier.append(id)
             else:
                 identifier.append(ro.root_dataset['identifier'])
-    
-        dicipline = None
-        if "dicipline" in ro.root_dataset:
-            dicipline = ro.root_dataset['dicipline']
         
         citation = None
         if "citation" in ro.root_dataset:
@@ -233,7 +260,6 @@ def metaregister(request):
             'authors': authors,
             'keywords': keywords,
             'identifier': identifier,
-            'dicipline': dicipline,
             'people': people,
             'citation': citation,
             'publisher': publisher,
@@ -253,17 +279,18 @@ def metaregister(request):
     citation_id = request.POST.get('citation_id')
     crate.keywords = request.POST.getlist("keywords[]")
     crate.identifier = request.POST.getlist('identifier[]')
-    crate.dicipline = request.POST.get('dicipline')
+    crate.discipline = request.POST.getlist('discipline[]')
     crate.save()
     for au in authors:
-        author = Person.objects.filter(id=au).first()
-        crate.authors.add(au)
+        aulist = au.split("|")
+        author = People.objects.filter(ocrid=aulist[0], name=aulist[1]).first()
+        crate.authors.add(author)
     
     if publisher != "none":
         pub = Organization.objects.filter(id=publisher).first()
         crate.publisher.add(pub)
 
-    if citation_id != None:
+    if citation_id != None and citation_id !="":
         cit, created = Citation.objects.get_or_create(id=citation_id)
         if created:
             cit.name = citation_name
@@ -292,7 +319,8 @@ def metaregister(request):
             de.programmingLanguage = entity['programmingLanguage']['name']
         de.save()
 
-    return HttpResponse("save success") #success page
+    messages.success(request, "Register Successed!", extra_tags="alert-success")
+    return redirect('/crate/%s'%crate.id)
 
 def saveAuthor(request):
     if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' and request.method == "POST": #ajax
@@ -301,14 +329,13 @@ def saveAuthor(request):
         authors = request.POST.getlist("authors[]")
         authormodel = []
         for au in authors:
-            author = Person.objects.filter(id=au).first()
+            author = People.objects.filter(ocrid=au).first()
             authormodel.append(author)
-        person, created = Person.objects.get_or_create(id=id)
+        person, created = People.objects.get_or_create(ocrid=id, name=name)
         if not created:
             return JsonResponse({"error": "Author or ID already exists"}, status=400)
-        person.name = name
         person.save()
-        people = Person.objects.all()
+        people = People.objects.all()
         html = render_to_string('authors.html', {'people': people, 'authors':authormodel})
         return HttpResponse(html)
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -327,3 +354,15 @@ def savePublisher(request):
         html = render_to_string('organization.html', {'organizations': orgs})
         return HttpResponse(html)
     return JsonResponse({"error": ""}, status=400)
+
+def to_queryset(response):
+    pks = [result.meta.id for result in response]
+
+    qs = Crate.objects.filter(pk__in=pks)
+
+    preserved_order = Case(
+        *[When(pk=pk, then=pos) for pos, pk in enumerate(pks)],
+        output_field=IntegerField()
+    )
+    qs = qs.order_by(preserved_order)
+    return qs

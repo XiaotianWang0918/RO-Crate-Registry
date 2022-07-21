@@ -39,7 +39,7 @@
             <option>Types</option>
             <option>Profiles</option>
             <option>Licenses</option>
-            <option>Diciplines</option>
+            <option>Disciplines</option>
             <option>Programming Languages</option>
           </select>
           <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
@@ -81,7 +81,7 @@
     </div>
     <div class="form-group mb-3">
       <label for="description">Description</label>
-      <textarea type="text" class="form-control" name="description" readonly> {{description}}</textarea>
+      <textarea type="text" class="form-control" name="description"> {{description}}</textarea>
     </div>
     
     <div class="form-group col-md-6 mb-3">
@@ -104,9 +104,9 @@
               <option disabled hidden value="">Choose a tag...</option>
               {% for person in people %}
               {% if person in authors %}
-              <option value={{person.id}} selected="selected">{{person.name}}</option>
+              <option value="{{person.ocrid}}|{{person.name}}" selected="selected">{{person.name}}</option>
               {% else %}
-              <option value={{person.id}}>{{person.name}}</option>
+              <option value="{{person.ocrid}}|{{person.name}}">{{person.name}}</option>
               {% endif %}
               {% endfor %}
           </select>
@@ -142,7 +142,7 @@
       <div class="form-group col-md-6 mb-3">
         <label for="keywords">Keywords</label>
         <select class="form-select" id="keywords" name="keywords[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
-          <option disabled hidden value="">Choose a tag...</option>
+          <option disabled hidden value="">Add a tag...</option>
           {% for keyword in keywords %}
           <option value="{{keyword}}" selected="selected">{{keyword}}</option>
           {% endfor %}
@@ -162,8 +162,11 @@
         </select>
       </div>
       <div class="form-group col-md-6 mb-3">
-        <label for="dicipline">Dicipline</label>
-        <input type="text" class="form-control" name="dicipline" {% if dicipline != none %} value="{{dicipline}}" {% endif %}>
+        <label for="discipline">Discipline</label>
+        <select class="form-select" id="discipline" name="discipline[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
+          <option disabled hidden value="">Add a discipline...</option>
+          
+        </select>
       </div>
 
     <button type="submit" class="btn btn-primary mt-3 mb-3">Submit</button>
@@ -191,7 +194,7 @@
             <input class="form-control" name="author_name">
           </div>
           {% for author in authors %}
-          <input type="hidden" name="authors[]", value={{author.id}}>
+          <input type="hidden" name="authors[]", value={{author.ocrid}}>
           {% endfor %}
         </form>
       </div>
@@ -222,6 +225,7 @@
               // 3. update authors
               $("#saveauthor").trigger('reset');
               myModal.hide();
+              //$('.modal-backdrop').remove();
               $('#author_select').html(response);
           },
           error: function (response) {
@@ -244,11 +248,11 @@
         <form id="savepublisher">
           {% csrf_token %}
           <div class="form-group">
-            <label for="author_id" class="col-form-label text-body">ID</label>
+            <label for="organization_id" class="col-form-label text-body">ID</label>
             <input type="text" class="form-control" name="organization_id">
           </div>
           <div class="form-group">
-            <label for="author_name" class="col-form-label text-body">Name</label>
+            <label for="organization_name" class="col-form-label text-body">Name</label>
             <input type="text" class="form-control" name="organization_name">
           </div>
         </form>
@@ -260,7 +264,7 @@
     </div>
   </div>
   <script>
-    var myModal = new bootstrap.Modal(document.getElementById('PublisherModal'), {
+    var myModal2 = new bootstrap.Modal(document.getElementById('PublisherModal'), {
       keyboard: false
     })
     $("#savepublisher").submit(function (e) {
@@ -279,7 +283,8 @@
               // 2. hide myModal
               // 3. update authors
               $("#savepublisher").trigger('reset');
-              myModal.hide();
+              myModal2.hide();
+              //$('.modal-backdrop').remove();
               $('#publisher_select').html(response);
           },
           error: function (response) {
@@ -288,6 +293,7 @@
           }
       });
   });
+
   </script>
 </div>
 
