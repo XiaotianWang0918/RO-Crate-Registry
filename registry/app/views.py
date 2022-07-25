@@ -1,5 +1,5 @@
 from datetime import datetime, date
-from urllib import response
+from urllib import response, parse
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
 from django.shortcuts import redirect, render
 from .models import Citation, Crate, Organization, People, Entity
@@ -14,6 +14,7 @@ from django.core.paginator import Paginator
 from app.facet import CrateSearch
 from django.db.models import Case, When
 from django.db.models.fields import IntegerField
+import validators
 
 # Create your views here.
 def portal(request):
@@ -21,7 +22,7 @@ def portal(request):
         return render(request, 'portal.html')
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(parse.quote_plus(field),parse.quote_plus(search)))
 
 def search(request):
     if request.method == 'GET':
@@ -154,7 +155,7 @@ def search(request):
             })
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(parse.quote_plus(field),parse.quote_plus(search)))
 
 
 def detail(request, cid):
@@ -183,7 +184,18 @@ def detail(request, cid):
         ], min_term_freq=1, minimum_should_match=5)
     result = CrateDocument.search().query(related_query)
     resultSet = result.to_queryset()
-    return render(request, 'detail.html', {'crate': crate, 'related': resultSet})
+    authors = crate.authors.all()
+    authorlist = []
+    for author in authors:
+        au = {}
+        au['author'] = author
+        if validators.url(author.ocrid):
+            au['isocr'] = True
+        else:
+            au['isocr'] = False
+        authorlist.append(au)
+    print(authorlist)
+    return render(request, 'detail.html', {'crate': crate, 'related': resultSet, 'authorlist':authorlist})
 
 def register(request):
     if request.method == 'GET':
