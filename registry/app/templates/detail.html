@@ -222,7 +222,37 @@
         </div>
       </div>
       <div class="tab-pane fade" id="ex2-tabs-2" role="tabpanel" aria-labelledby="ex2-tab-2">
-        Tab 2 content
+        <div id="contents" class="mt-3 mb-5">
+          {% for entry in crate.entities.all %}  
+          <div class="data-entity mb-3">
+              <strong>Data entity: &nbsp;</strong>
+              <a class="data-entity-link" href="/search?field=Data+Entities&q={{entry.entity_id}}&sort=Relevance">{{ entry.entity_id }}</a>
+              <div class="container">
+                {% if entry.name %}
+                <div class="row">
+                  <div class="col-2"><strong>Name:</strong></div>
+                  <div class="col-10"><a href="/search?field=Data+Entities&q={{entry.name}}&sort=Relevance">{{entry.name}}</a></div>
+                </div>
+                {% endif %}
+                <div class="row">
+                  <div class="col-2"><strong>Type:</strong></div>
+                  <div class="col-10">
+                    {% for type in entry.type %}
+                    <a href="/search?field=Types&q={{type}}&sort=Relevance">{{type}}</a>&nbsp;
+                    {% endfor %}
+                  </div>
+                </div>
+                {% if entry.programmingLanguage %}
+                <div class="row">
+                  <div class="col-2"><strong>ProgrammingLanguage:</strong></div>
+                  <div class="col-10"><a href="/search?field=Programming+Languages&q={{entry.programmingLanguage}}&sort=Relevance">{{entry.programmingLanguage}}</a></div>
+                </div>
+                {% endif %}
+              </div>
+          
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
     <!-- Tabs content -->

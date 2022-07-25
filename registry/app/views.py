@@ -33,9 +33,12 @@ def search(request):
         types = request.GET.getlist('type')
         programs = request.GET.getlist('pro')
         startDate = request.GET.get('startDate')
-        # sdate = datetime.datetime.strptime(startDate, '%Y-%m-%d').date()
         endDate = request.GET.get('endDate')
-        # edate = datetime.datetime.strptime(endDate, '%Y-%m-%d').date()
+        createdStartDate = request.GET.get('createdStartDate')
+        createdEndDate = request.GET.get('createdEndDate')
+        modifiedStartDate = request.GET.get('modifiedStartDate')
+        modifiedEndDate = request.GET.get('modifiedEndDate')
+        
         filter = {"discipline":disciplines, "license":licenses, "type":types, "programmingLanguage":programs}
         if field == "All":
             entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
@@ -134,7 +137,18 @@ def search(request):
         if endDate not in ("","undefined",None):
             datefilter["lte"] = endDate
 
-        crate_search = CrateSearch("", filters=filter, q=q, datefilter=datefilter)
+        createdfilter = {}
+        if createdStartDate not in ("","undefined",None):
+            createdfilter["gte"] = createdStartDate
+        if createdEndDate not in ("","undefined",None):
+            createdfilter["lte"] = createdEndDate
+
+        modifiedfilter = {}
+        if modifiedStartDate not in ("","undefined",None):
+            modifiedfilter["gte"] = modifiedStartDate
+        if modifiedEndDate not in ("","undefined",None):
+            modifiedfilter["lte"] = modifiedEndDate
+        crate_search = CrateSearch("", filters=filter, q=q, datefilter=datefilter, created=createdfilter, modified=modifiedfilter)
             
         response = crate_search.execute()
         resultSet = to_queryset(response) 

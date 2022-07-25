@@ -164,6 +164,10 @@
                   };
                   newparams.append("startDate",startDateVal);
                   newparams.append("endDate", endDateVal);
+                  newparams.append("createdStartDate", document.getElementById('CreatedStartDate').value)
+                  newparams.append("createdEndDate", document.getElementById('CreatedEndDate').value)
+                  newparams.append("modifiedStartDate", document.getElementById('ModifiedStartDate').value)
+                  newparams.append("modifiedEndDate", document.getElementById('ModifiedEndDate').value)
                   var newUrl = window.location.origin 
                         + window.location.pathname 
                         + '?' + newparams.toString();
@@ -201,6 +205,28 @@
                   </span>
                   </div>
                   {% endfor %}
+              </div>
+              <div class="mt-2 ms-3">
+                <label>Created</label>
+                <div class="ms-3">
+                  <label for="CreatedStartDate" class="form-label">From</label>
+                  <input id="CreatedStartDate" class="form-control" type="date" value="{{request.GET.createdStartDate}}"/>
+                </div>
+                <div class="ms-3 mb-2">
+                  <label for="CreatedEndDate" class="form-label">To</label>
+                  <input id="CreatedEndDate" class="form-control" type="date" value="{{request.GET.createdEndDate}}"/>
+                </div>
+              </div>
+              <div class="mt-2 ms-3">
+                <label>Modified</label>
+                <div class="ms-3">
+                  <label for="ModifiedStartDate" class="form-label">From</label>
+                  <input id="ModifiedStartDate" class="form-control" type="date" value="{{request.GET.modifiedStartDate}}"/>
+                </div>
+                <div class="ms-3 mb-2">
+                  <label for="ModifiedEndDate" class="form-label">To</label>
+                  <input id="ModifiedEndDate" class="form-control" type="date" value="{{request.GET.modifiedEndDate}}"/>
+                </div>
               </div>
             </div>
         </div>
