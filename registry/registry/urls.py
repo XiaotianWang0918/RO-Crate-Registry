@@ -27,4 +27,6 @@ urlpatterns = [
     path('register_metadata', views.metaregister),
     path('save_author', views.saveAuthor, name="save_author"),
     path('save_publisher', views.savePublisher, name="save_publisher"),
+    path('crate/<int:cid>/edit',views.edit),
+    path('crate/<int:cid>/delete',views.delete),
 ]

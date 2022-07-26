@@ -296,6 +296,7 @@ def metaregister(request):
             'citation': citation,
             'publisher': publisher,
             'organizations': organizations,
+            'mode': "Rsegister",
         })
     
     #post
@@ -398,3 +399,65 @@ def to_queryset(response):
     )
     qs = qs.order_by(preserved_order)
     return qs
+
+
+def edit(request, cid):
+    crate = Crate.objects.filter(id=cid).first()
+    people = People.objects.all()
+    organizations = Organization.objects.all()
+    if request.method == 'GET':
+        return render(request, 'register_meta.html',{
+                'id': cid,
+                'name': crate.name,
+                'url': crate.url,
+                'description': crate.description,
+                'datePublished': crate.datePublished,
+                'license': crate.license,
+                'authors': crate.authors.all(),
+                'keywords': crate.keywords,
+                'identifier': crate.identifier,
+                'people': people,
+                'citation': crate.citation,
+                'publisher': crate.publisher,
+                'organizations': organizations,
+                'mode': "Edit",
+            })
+
+    crate.description = request.POST.get('description')
+    crate.license = request.POST.get('license')
+    authors = request.POST.getlist("authors[]")
+    publisher = request.POST.get('publisher')
+    citation_name = request.POST.get('citation_name')
+    citation_id = request.POST.get('citation_id')
+    crate.keywords = request.POST.getlist("keywords[]")
+    crate.identifier = request.POST.getlist('identifier[]')
+    crate.discipline = request.POST.getlist('discipline[]')
+    crate.save()
+    crate.authors.clear()
+    for au in authors:
+        aulist = au.split("|")
+        author = People.objects.filter(ocrid=aulist[0], name=aulist[1]).first()
+        if not crate.authors.filter(ocrid=aulist[0], name=aulist[1]).exists():
+            crate.authors.add(author)
+    
+    if publisher != "none":
+        pub = Organization.objects.filter(id=publisher).first()
+        if not crate.publisher.filter(id=publisher).exists():
+            crate.publisher.add(pub)
+
+    if citation_id != None and citation_id !="":
+        cit, created = Citation.objects.get_or_create(id=citation_id)
+        if created:
+            cit.name = citation_name
+        cit.save()
+        if not crate.citation.filter(id=citation_id):
+            crate.citation.add(cit)
+    
+    messages.success(request, "Edit Successed!", extra_tags="alert-success")
+    return redirect('/crate/%s'%crate.id)
+    
+def delete(request, cid):
+    crate = Crate.objects.filter(id=cid).first()
+    crate.delete()
+    messages.success(request, "Delete Successed!", extra_tags="alert-success")
+    return redirect('/')

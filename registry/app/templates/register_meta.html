@@ -1,7 +1,8 @@
 {% extends 'layout.html' %}
 {% load static %}
 
-{% block title %} RO-Crate Registry - Register{% endblock title %}
+{% block title %} RO-Crate Registry - {{mode}}{% endblock title %}
+
 
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/register_meta.css' %}" >
@@ -170,6 +171,9 @@
       </div>
 
     <button type="submit" class="btn btn-primary mt-3 mb-3">Submit</button>
+    {% if mode == "Edit" %}
+    <a href="/crate/{{id}}/delete" class="btn btn-primary mt-3 mb-3" role="button" >Delete</a>
+    {% endif %}
   </form>
 </div>
 
