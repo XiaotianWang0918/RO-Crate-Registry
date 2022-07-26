@@ -208,7 +208,6 @@ def detail(request, cid):
         else:
             au['isocr'] = False
         authorlist.append(au)
-    print(authorlist)
     return render(request, 'detail.html', {'crate': crate, 'related': resultSet, 'authorlist':authorlist})
 
 def register(request):
@@ -267,6 +266,13 @@ def metaregister(request):
                         identifier.append(id)
             else:
                 identifier.append(ro.root_dataset['identifier'])
+        
+        #if exists:
+        for id in identifier:
+            res = Crate.objects.filter(identifier__contains=[id])
+            if len(res) != 0:
+                messages.warning(request, "RO-Crate already exists!", extra_tags="alert-warning")
+                return redirect("/crate/%s/"%res.first().id)
         
         citation = None
         if "citation" in ro.root_dataset:
