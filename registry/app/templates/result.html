@@ -241,11 +241,11 @@
     </div>
     <div class="col-md-9 col-md-pull-3">
       <div class="row mt-3">
-        <p class="w-25 float:left"> {{resultset.paginator.count}} results</p>
+        <p class="w-25 float:left"> {{total}} results</p>
         <div class="w-75 ">
           <nav aria-label="Page navigation example">
             <ul class="pagination justify-content-end">
-              {% if resultset.has_previous %}
+              {% if request.GET.page|add:"0" > 1 %}
               <li class="page-item">
                 <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:-1 %}"
                   aria-label="Previous">
@@ -253,7 +253,7 @@
                 </a>
               </li>
               {% endif %}
-              {% for p in resultset.paginator.num_pages|times %}
+              {% for p in pages|times %}
               {% if request.GET.page|add:"0" == p %}
               <li class="page-item"><a class="page-link"
                   href="/search?{% url_replace 'page' p %}"><strong>{{p}}</strong></a></li>
@@ -261,7 +261,7 @@
               <li class="page-item"><a class="page-link" href="/search?{% url_replace 'page' p %}">{{p}}</a></li>
               {% endif %}
               {% endfor %}
-              {% if resultset.has_next %}
+              {% if request.GET.page|add:"0" < pages %}
               <li class="page-item">
                 <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:1 %}" aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
@@ -273,7 +273,7 @@
           </nav>
         </div>
       </div>
-      {% for result in resultset.object_list %}
+      {% for result in resultset %}
       <section class="search-result-item">
         <div class="search-result-item-body">
           <div class="row">

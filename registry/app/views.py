@@ -118,7 +118,7 @@ def search(request):
                 'discipline',
                 ])
         elif field == "Related":
-            q = Q("more_like_this", fields=[
+            q = Q(MoreLikeThis(fields=[
                 'name',
                 'keywords',
                 'discipline',
@@ -129,7 +129,7 @@ def search(request):
                         "_index": "crates",
                         "_id": search,
                     }
-                ], min_term_freq=1, minimum_should_match=5)
+                ],min_term_freq=1, min_doc_freq=1))
 
         datefilter = {}
         if startDate not in ("","undefined",None):
@@ -149,19 +149,27 @@ def search(request):
         if modifiedEndDate not in ("","undefined",None):
             modifiedfilter["lte"] = modifiedEndDate
         crate_search = CrateSearch("", filters=filter, q=q, datefilter=datefilter, created=createdfilter, modified=modifiedfilter)
-            
-        response = crate_search.execute()
-        resultSet = to_queryset(response) 
+        
         sort = request.GET.get('sort')
         if sort == "Date":
-            resultSet = resultSet.order_by('datePublished')
+            crate_search._s = crate_search._s.sort('datePublished')
         elif sort == "Title":
-            resultSet = resultSet.order_by('name')
-        paginator = Paginator(resultSet, 5)
+            crate_search._s = crate_search._s.sort('name')
+
         page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        if page_number == ("" or None):
+            page_number = 1
+        page_number = int(page_number)
+        crate_search._s = crate_search._s[(page_number-1)*5: page_number*5]
+
+        response = crate_search.execute()
+        resultSet = to_queryset(response) 
+        total = response.hits.total.value
+        pages = (total-1) // 5 + 1
         return render(request, 'result.html', {
-            'resultset': page_obj, 
+            'resultset': resultSet, 
+            'total' : total,
+            'pages' : pages,
             'discipline':response.facets.discipline, 
             'license':response.facets.license,
             'type': response.facets.type,
@@ -195,8 +203,8 @@ def detail(request, cid):
                 "_index": "crates",
                 "_id": str(cid),
             }
-        ], min_term_freq=1, minimum_should_match=5)
-    result = CrateDocument.search().query(related_query)
+        ], min_term_freq=1, min_doc_freq=1)
+    result = CrateDocument.search().query(related_query)[0:5]
     resultSet = result.to_queryset()
     authors = crate.authors.all()
     authorlist = []

@@ -30,6 +30,7 @@ class CrateDocument(Document):
         'name': fields.TextField(),
     })
 
+    name = fields.KeywordField()
     keywords = fields.ListField(fields.TextField())
     identifier = fields.ListField(fields.TextField())
     license = fields.KeywordField()
@@ -44,7 +45,6 @@ class CrateDocument(Document):
         model = Crate
         related_models = [Entity, People, Organization, Citation]
         fields = [
-            'name',
             'description',
             'url',
         ]
