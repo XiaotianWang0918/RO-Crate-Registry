@@ -1,17 +1,19 @@
     <script type="module">
-    import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+        import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
     Tags.init();
     </script>
-        <div class="form-group col-md-6">
-            <select class="form-select" id="author" name="authors[]" multiple data-allow-clear="true" data-clear-end="true" data-full-width="false" data-suggestions-threshold="0">
-          
-                {% for person in people %}
-                {% if person in authors %}
-                <option value={{person.id}} selected="selected">{{person.name}}</option>
-                {% else %}
-                <option value={{person.id}}>{{person.name}}</option>
-                {% endif %}
-                {% endfor %}
-            </select>
-          </div>
-          <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#AuthorModal">Add</button>
+    <div class="form-group col-md-6">
+        <select class="form-select" id="author" name="authors[]" multiple data-allow-clear="true" data-clear-end="true"
+            data-full-width="false" data-suggestions-threshold="0">
+
+            {% for person in people %}
+            {% if person in authors %}
+            <option value={{person.id}} selected="selected">{{person.name}}</option>
+            {% else %}
+            <option value={{person.id}}>{{person.name}}</option>
+            {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal"
+        data-bs-target="#AuthorModal">Add</button>

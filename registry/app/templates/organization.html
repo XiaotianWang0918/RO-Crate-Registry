@@ -1,9 +1,10 @@
 <div class="form-group col-md-6">
-    <select class="form-select" aria-label="Default select example" name="publisher">
-      <option value="none" selected>Select an Existing Organization</option>
-      {% for organization in organizations %}
-      <option value="{{organization.id}}">{{organization.name}}</option>
-      {% endfor %}
-    </select>
-    </div>
-    <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#PublisherModal">Add</button>
+  <select class="form-select" aria-label="Default select example" name="publisher">
+    <option value="none" selected>Select an Existing Organization</option>
+    {% for organization in organizations %}
+    <option value="{{organization.id}}">{{organization.name}}</option>
+    {% endfor %}
+  </select>
+</div>
+<button class="btn btn-outline-primary" type="button" data-bs-toggle="modal"
+  data-bs-target="#PublisherModal">Add</button>

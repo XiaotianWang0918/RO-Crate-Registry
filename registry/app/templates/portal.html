@@ -6,38 +6,35 @@
 {% include 'messages.html' %}
 <div class="container position-absolute top-50 start-50 translate-middle">
   <h1 align="center">RO-Crate Registry</h1>
-      <form method="post">
-        {% csrf_token %}
-        <div class="input-group mx-auto" style="width: 700px">
-          <select class="form-select float:left" name="field">
-            <option selected>All</option>
-            <option>Person</option>
-            <option>Organizations</option>
-            <option>Projects</option>
-            <option>Publications</option>
-            <option>Data Entities</option>
-            <option>Types</option>
-            <option>Profiles</option>
-            <option>Licenses</option>
-            <option>Disciplines</option>
-            <option>Programming Languages</option>
-          </select>
-          <div class="form-outline border rounded mx-auto" style="width: 500px">
-            <input type="search" name="search" class="form-control" />
-            <label class="form-label" for="search">Search</label>
-          </div>
-          <button type="submit" class="btn btn-primary mx-auto float:right">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </form>
-      <div class="mx-auto mt-2" style="width: 700px">
-      <a href="/register">Register an RO-Crate</a>
+  <form method="post">
+    {% csrf_token %}
+    <div class="input-group mx-auto" style="width: 700px">
+      <select class="form-select float:left" name="field">
+        <option selected>All</option>
+        <option>Person</option>
+        <option>Organizations</option>
+        <option>Projects</option>
+        <option>Publications</option>
+        <option>Data Entities</option>
+        <option>Types</option>
+        <option>Profiles</option>
+        <option>Licenses</option>
+        <option>Disciplines</option>
+        <option>Programming Languages</option>
+      </select>
+      <div class="form-outline border rounded mx-auto" style="width: 500px">
+        <input type="search" name="search" class="form-control" />
+        <label class="form-label" for="search">Search</label>
       </div>
+      <button type="submit" class="btn btn-primary mx-auto float:right">
+        <i class="fas fa-search"></i>
+      </button>
+    </div>
+  </form>
+  <div class="mx-auto mt-2" style="width: 700px">
+    <a href="/register">Register an RO-Crate</a>
+  </div>
 </div>
- 
+
 
 {% endblock %}
-
-
-
