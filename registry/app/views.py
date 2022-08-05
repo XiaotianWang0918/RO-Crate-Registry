@@ -10,7 +10,6 @@ from elasticsearch_dsl import Q, Search
 import urllib.request
 from django.contrib import messages
 from django.template.loader import render_to_string
-from django.core.paginator import Paginator
 from app.facet import CrateSearch
 from django.db.models import Case, When
 from django.db.models.fields import IntegerField
@@ -30,6 +29,7 @@ def search(request):
         field = request.GET.get('field')
         disciplines = request.GET.getlist('discipline')
         licenses = request.GET.getlist('license')
+        profiles = request.GET.getlist('profile')
         types = request.GET.getlist('type')
         programs = request.GET.getlist('pro')
         startDate = request.GET.get('startDate')
@@ -39,7 +39,7 @@ def search(request):
         modifiedStartDate = request.GET.get('modifiedStartDate')
         modifiedEndDate = request.GET.get('modifiedEndDate')
         
-        filter = {"discipline":disciplines, "license":licenses, "type":types, "programmingLanguage":programs}
+        filter = {"discipline":disciplines, "license":licenses, "profile":profiles, "type":types, "programmingLanguage":programs}
         if field == "All":
             entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'name',
@@ -48,6 +48,7 @@ def search(request):
                 'keywords',
                 'identifier',
                 'discipline',
+                'profile',
                 ])
             entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.name',
@@ -98,7 +99,7 @@ def search(request):
                 'publisher.id',
                 ])))
             
-        elif field == "Types" or field == "Profiles": #TODO: Profiles
+        elif field == "Types":
             q = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.type',
                 ])))
@@ -111,6 +112,11 @@ def search(request):
         elif field == "Licenses":
             q = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'license',
+                ])
+        
+        elif field == "Profiles":
+            q = Q("multi_match", query=search, fuzziness="auto", fields=[
+                'profile',
                 ])
             
         elif field == "Disciplines":
@@ -172,6 +178,7 @@ def search(request):
             'pages' : pages,
             'discipline':response.facets.discipline, 
             'license':response.facets.license,
+            'profile':response.facets.profile,
             'type': response.facets.type,
             'programming': response.facets.programmingLanguage,
             })
@@ -291,6 +298,15 @@ def metaregister(request):
         organizations = Organization.objects.all()
         publisher = ro.publisher
 
+        profile = None
+        profileID = None
+        if "conformsTo" in ro.metadata:
+            profiles = ro.metadata["conformsTo"]
+            for pr in profiles:
+                if isinstance(pr, RO_Entity):
+                    profile = pr["name"]
+                    profileID = pr["@id"]
+
         return render(request, 'register_meta.html',{
             'name': ro.name,
             'url': url,
@@ -305,6 +321,8 @@ def metaregister(request):
             'publisher': publisher,
             'organizations': organizations,
             'mode': "Rsegister",
+            'profile': profile,
+            'profileID': profileID,
         })
     
     #post
@@ -318,6 +336,8 @@ def metaregister(request):
     publisher = request.POST.get('publisher')
     citation_name = request.POST.get('citation_name')
     citation_id = request.POST.get('citation_id')
+    crate.profile = request.POST.get('profile_name')
+    crate.profileID = request.POST.get('profile_id')
     crate.keywords = request.POST.getlist("keywords[]")
     crate.identifier = request.POST.getlist('identifier[]')
     crate.discipline = request.POST.getlist('discipline[]')
@@ -428,6 +448,8 @@ def edit(request, cid):
                 'citation': crate.citation,
                 'publisher': crate.publisher,
                 'organizations': organizations,
+                'profile':crate.profile,
+                'profileID': crate.profileID,
                 'mode': "Edit",
             })
 
@@ -440,6 +462,8 @@ def edit(request, cid):
     crate.keywords = request.POST.getlist("keywords[]")
     crate.identifier = request.POST.getlist('identifier[]')
     crate.discipline = request.POST.getlist('discipline[]')
+    crate.profile = request.POST.get('profile_name')
+    crate.profileID = request.POST.get('profile_id')
     crate.save()
     crate.authors.clear()
     for au in authors:

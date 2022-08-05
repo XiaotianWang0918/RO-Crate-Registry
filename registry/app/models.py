@@ -28,6 +28,8 @@ class Crate(models.Model):
         null=True,
         blank=True,
     )
+    profile = models.CharField(max_length=128, null=True, blank=True)
+    profileID = models.CharField(max_length=128, null=True, blank=True)
 
 class Entity(models.Model):
     crate = models.ForeignKey(to="Crate", to_field="id", on_delete=models.CASCADE, related_name='entities')

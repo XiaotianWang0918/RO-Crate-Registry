@@ -118,6 +118,23 @@
 
       </div>
       <div class="mt-3">
+        <label>Profile</label>
+
+        {% for pro, hit_count, is_selected in profile %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="profile" value="{{pro}}" id="{{pro}}"
+            {% if is_selected %} checked {% endif %}>
+          <label class="form-check-label" for="{{pro}}">
+            {{pro}}
+          </label>
+          <span style="float:right">
+            {{hit_count}}
+          </span>
+        </div>
+        {% endfor %}
+
+      </div>
+      <div class="mt-3">
         <label>License</label>
 
         {% for lic, hit_count, is_selected in license %}

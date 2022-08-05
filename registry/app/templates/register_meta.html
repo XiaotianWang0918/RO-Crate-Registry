@@ -149,6 +149,17 @@
       <input type="text" class="form-control" name="citation_name" {% if citation != none %} value="{{citation.name}}"
         {% endif %} placeholder="name">
     </div>
+
+    <div class="form-group col-md-6 mb-3">
+      <label for="citation">Profile</label>
+      <input type="text" class="form-control" name="profile_id" {% if profileID != none %} value="{{profileID}}"
+        {% endif %} placeholder="id">
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <input type="text" class="form-control" name="profile_name" {% if profile != none %} value="{{profile}}"
+        {% endif %} placeholder="name">
+    </div>
+
     <div class="form-group col-md-6 mb-3">
       <label for="keywords">Keywords</label>
       <select class="form-select" id="keywords" name="keywords[]" multiple data-allow-new="true" data-allow-clear="true"

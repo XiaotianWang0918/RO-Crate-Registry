@@ -34,6 +34,7 @@ class CrateDocument(Document):
     keywords = fields.ListField(fields.TextField())
     identifier = fields.ListField(fields.TextField())
     license = fields.KeywordField()
+    profile = fields.KeywordField()
     discipline = fields.ListField(fields.KeywordField())
     datePublished = fields.DateField()
     class Index:
