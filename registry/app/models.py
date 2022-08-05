@@ -64,28 +64,28 @@ class Citation(models.Model):
 #     for c in crates:
 #         c.delete()
 
-def addTest(num, discipline):
-    for i in range(1,num+1):
-        crate = Crate()
-        crate.name = "Test Case in %s No.%d"%(discipline,i)
-        crate.description = "Test Case in %s No.%d"%(discipline,i)
-        crate.datePublished = datetime.now()
-        crate.license = "Apache-2.0"
-        crate.keywords = ["test","%s"%discipline]
-        crate.discipline = ["%s"%discipline]
-        crate.url="#TestcaseIn%sNo%d"%(discipline, i)
-        crate.identifier = ["#TestcaseIn%sNo%d"%(discipline, i)]
-        crate.save()
-        author = People.objects.filter(ocrid="Test111", name="Xiaotian Wang").first()
-        crate.authors.add(author)
-        entity = Entity()
-        entity.entity_id = "Data Entity of Test Case in %s No.%d"%(discipline,i)
-        entity.name = "Data Entity of Test Case in %s No.%d"%(discipline,i)
-        entity.type=["File", "ComputationalWorkflow"]
-        entity.programmingLanguage = "Common Workflow Language"
-        entity.dateCreated = datetime.now()
-        entity.dateModified = datetime.now()
-        entity.crate = crate
-        entity.save()
+# def addTest(num, discipline):
+#     for i in range(1,num+1):
+#         crate = Crate()
+#         crate.name = "Test Case in %s No.%d"%(discipline,i)
+#         crate.description = "Test Case in %s No.%d"%(discipline,i)
+#         crate.datePublished = datetime.now()
+#         crate.license = "Apache-2.0"
+#         crate.keywords = ["test","%s"%discipline]
+#         crate.discipline = ["%s"%discipline]
+#         crate.url="#TestcaseIn%sNo%d"%(discipline, i)
+#         crate.identifier = ["#TestcaseIn%sNo%d"%(discipline, i)]
+#         crate.save()
+#         author = People.objects.filter(ocrid="Test111", name="Xiaotian Wang").first()
+#         crate.authors.add(author)
+#         entity = Entity()
+#         entity.entity_id = "Data Entity of Test Case in %s No.%d"%(discipline,i)
+#         entity.name = "Data Entity of Test Case in %s No.%d"%(discipline,i)
+#         entity.type=["File", "ComputationalWorkflow"]
+#         entity.programmingLanguage = "Common Workflow Language"
+#         entity.dateCreated = datetime.now()
+#         entity.dateModified = datetime.now()
+#         entity.crate = crate
+#         entity.save()
 
-        print("Add Test Cases Success")
+#         print("Add Test Cases Success")

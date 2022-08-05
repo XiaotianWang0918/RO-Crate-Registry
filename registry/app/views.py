@@ -184,7 +184,7 @@ def search(request):
             })
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s&sort=Relevance"%(parse.quote_plus(field),parse.quote_plus(search)))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
 
 
 def detail(request, cid):
