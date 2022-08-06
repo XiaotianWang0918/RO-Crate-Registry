@@ -126,14 +126,14 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_metadata(self):
-        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-372-1.crate.zip", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
+        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-test-1.crate.zip", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
         # request.user = self.user
         response = metaregister(request)
         # Use this syntax for class-based views.
         self.assertEqual(response.status_code, 200)
     
     def test_metadata_2(self):
-        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-372-2.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
+        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-test-2.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
         # request.user = self.user
         response = metaregister(request)
         # Use this syntax for class-based views.
@@ -144,7 +144,7 @@ class SimpleTest(TestCase):
         crate.identifier = ["https://workflowhub.eu/workflows/372?version=1"]
         crate.save()
         
-        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-372-2.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
+        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-test-2.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
         setattr(request, 'session', 'session')
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
@@ -154,7 +154,7 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_metadata_post(self):
-        request = self.factory.post('/register_metadata?filename=%s&url=%s'%("test/workflow-372-1.crate.zip", "https://workflowhub.eu/workflows/372/ro_crate?version=1"),
+        request = self.factory.post('/register_metadata?filename=%s&url=%s'%("test/workflow-test-1.crate.zip", "https://workflowhub.eu/workflows/372/ro_crate?version=1"),
           {
             'name':'TestName',
             'description':'test',
