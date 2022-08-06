@@ -1,3 +1,4 @@
+from ast import Or
 from django.utils import timezone
 from django.test import RequestFactory, TestCase
 from datetime import date, datetime
@@ -41,6 +42,7 @@ class SimpleTest(TestCase):
             entity.save()
         # self.user = User.objects.create_user(
         #     username='jacob', email='jacob@…', password='top_secret')
+        Organization(id="test111", name="test").save()
 
     def test_portal(self):
         # Create an instance of a GET request.
@@ -139,6 +141,13 @@ class SimpleTest(TestCase):
         # Use this syntax for class-based views.
         self.assertEqual(response.status_code, 200)
     
+    def test_metadata_3(self):
+        request = self.factory.get('/register_metadata?filename=%s&url=%s'%("test/workflow-test-3.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"))
+        # request.user = self.user
+        response = metaregister(request)
+        # Use this syntax for class-based views.
+        self.assertEqual(response.status_code, 200)
+    
     def test_metadata_alreadyexists(self):
         crate = self.createTestCrate(688)
         crate.identifier = ["https://workflowhub.eu/workflows/372?version=1"]
@@ -154,14 +163,16 @@ class SimpleTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_metadata_post(self):
-        request = self.factory.post('/register_metadata?filename=%s&url=%s'%("test/workflow-test-1.crate.zip", "https://workflowhub.eu/workflows/372/ro_crate?version=1"),
+        request = self.factory.post('/register_metadata?filename=%s&url=%s'%("test/workflow-test-2.crate", "https://workflowhub.eu/workflows/372/ro_crate?version=1"),
           {
             'name':'TestName',
             'description':'test',
             'url':'https://workflowhub.eu/workflows/372/ro_crate?version=1',
             'license': 'a',
             'authors[]': ['Test111|Xiaotian Wang'],
-            'publisher': "none",
+            'publisher': "test111",
+            "citation_id": "citationtest",
+            "citation_name": "citationtest",
             'identifier': ['https://workflowhub.eu/workflows/372?version=1']
             }, follow=True)
 
@@ -186,6 +197,16 @@ class SimpleTest(TestCase):
         # Use this syntax for class-based views.
         self.assertEqual(response.status_code, 400)
     
+    def test_saveAuthor_already_exists(self):
+        testauthor = People(ocrid="Test222", name="Xiaotian Wang")
+        testauthor.save()
+        request = self.factory.post('/save_author', {'author_id':'Test222', 'author_name':'Xiaotian Wang', 'authors[]':['Test111']}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        # request.user = self.user
+        response = saveAuthor(request)
+        # Use this syntax for class-based views.
+        self.assertEqual(response.content, b'{"error": "Author or ID already exists"}')
+        self.assertEqual(response.status_code, 400)
+
     def test_savePublisher(self):
         request = self.factory.post('/save_publisher', {'organization_id':'test222', 'organization_name':'test'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # request.user = self.user
@@ -195,6 +216,13 @@ class SimpleTest(TestCase):
     
     def test_savePublisher_not_ajax(self):
         request = self.factory.post('/save_publisher', {'organization_id':'test222', 'organization_name':'test'})
+        # request.user = self.user
+        response = savePublisher(request)
+        # Use this syntax for class-based views.
+        self.assertEqual(response.status_code, 400)
+    
+    def test_savePublisher_already_exists(self):
+        request = self.factory.post('/save_publisher', {'organization_id':'test111', 'organization_name':'test'}, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         # request.user = self.user
         response = savePublisher(request)
         # Use this syntax for class-based views.
@@ -217,7 +245,9 @@ class SimpleTest(TestCase):
             'url':'https://workflowhub.eu/workflows/372/ro_crate?version=1',
             'license': 'a',
             'authors[]': ['Test111|Xiaotian Wang'],
-            'publisher': "none",
+            'publisher': "test111",
+            "citation_id": "citationtest1",
+            "citation_name": "citationtest1",
             'identifier': ['https://workflowhub.eu/workflows/372?version=1']
             }, follow=True)
 

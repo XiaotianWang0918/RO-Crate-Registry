@@ -41,7 +41,7 @@
         "@id": "https://spdx.org/licenses/CC0-1.0"
       },
       "keywords": "Metagenomics, carveme, Genomics, memote, GEM",
-      "identifier": [{"@id":"https://workflowhub.eu/workflows/372?version=1"}, {"@id": "#testidentifier"}],
+      "identifier": ["https://workflowhub.eu/workflows/372?version=1","#testidentifier"],
       "name": "Research Object Crate for Metagenomic GEMs from Assembly",
       "description": "Workflow for Metagenomics from bins to metabolic model.<br>\r\nSummary\r\n  - Prodigal gene prediction\r\n  - CarveMe genome scale metabolic model reconstruction\r\n  - MEMOTE for metabolic model testing\r\n  - SMETANA Species METabolic interaction ANAlysis\r\n\r\nOther UNLOCK workflows on WorkflowHub: https://workflowhub.eu/projects/16/workflows?view=default<br><br>\r\n\r\n**All tool CWL files and other workflows can be found here:**<br>\r\n  Tools: https://gitlab.com/m-unlock/cwl<br>\r\n  Workflows: https://gitlab.com/m-unlock/cwl/workflows<br>\r\n\r\n**How to setup and use an UNLOCK workflow:**<br>\r\nhttps://m-unlock.gitlab.io/docs/setup/setup.html<br>\r\n",
       "isBasedOn": "https://gitlab.com/m-unlock/cwl/-/blob/master/cwl/workflows/workflow_metagenomics_GEM.cwl",
@@ -135,7 +135,11 @@
     },
     {
       "@id": "workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg",
-      "@type": "File",
+      "@type": [
+        "File",
+        "ImageObject",
+        "WorkflowSketch"
+      ],
       "contentSize": 29095
     },
     {
