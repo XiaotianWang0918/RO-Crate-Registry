@@ -8,55 +8,60 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">RO-Crate Registry</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% comment %} <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
             Dropdown
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="#">Action</a></li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><hr class="dropdown-divider"></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li> {% endcomment %}
-        
+
         <form method="post" class="d-flex">
-        {% csrf_token %}
-        <div class="input-group mx-auto" style="width: 500px">
-          <select class="form-select float:left" name="field">
-            {% if request.GET.field != "Related" %}
-            <option value="{{ request.GET.field }}" selected hidden>{{ request.GET.field }}</option>
-            {% endif %}
-            <option>All</option>
-            <option>Person</option>
-            <option>Organizations</option>
-            <option>Projects</option>
-            <option>Publications</option>
-            <option>Data Entities</option>
-            <option>Types</option>
-            <option>Profiles</option>
-            <option>Licenses</option>
-            <option>Disciplines</option>
-            <option>Programming Languages</option>
-          </select>
-          <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
-            <input type="search" name="search" class="form-control" {% if request.GET.field != "Related" %}value="{{ request.GET.q }}"{% endif %}/>
+          {% csrf_token %}
+          <div class="input-group mx-auto" style="width: 500px">
+            <select class="form-select float:left" name="field">
+              {% if request.GET.field != "Related" %}
+              <option value="{{ request.GET.field }}" selected hidden>{{ request.GET.field }}</option>
+              {% endif %}
+              <option>All</option>
+              <option>Person</option>
+              <option>Organizations</option>
+              <option>Projects</option>
+              <option>Publications</option>
+              <option>Data Entities</option>
+              <option>Types</option>
+              <option>Profiles</option>
+              <option>Licenses</option>
+              <option>Disciplines</option>
+              <option>Programming Languages</option>
+            </select>
+            <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
+              <input type="search" name="search" class="form-control"
+                {% if request.GET.field != "Related" %}value="{{ request.GET.q }}" {% endif %} />
+            </div>
+            <button type="submit" class="btn btn-primary mx-auto float:right">
+              <i class="fas fa-search"></i>
+            </button>
           </div>
-          <button type="submit" class="btn btn-primary mx-auto float:right">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </form>
+        </form>
       </ul>
 
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link"  href="#">Help</a>
+          <a class="nav-link" href="#">Help</a>
         </li>
         {% comment %} <li class="nav-item">
           <a class="nav-link" href="#">Register</a>
@@ -69,228 +74,251 @@
   </div>
 </nav>
 
-  <link rel="stylesheet" href="{% static 'css/result.css' %}" >
-  <div class="container mt-2 mb-5">
-    <div class="row ng-scope">
-        <div class="col-md-3 col-md-push-9">
-            <div class="mt-2">
-              <label for="sort">SORT BY</label>
-              <select id="sort" class="form-select" aria-label="sort">
-                <option selected hidden value="/search?{% url_replace 'sort' request.GET.sort %}">{{ request.GET.sort }}</option>
-                <option value="/search?{% url_replace 'sort' 'Relevance' %}">Relevance</option>
-                <option value="/search?{% url_replace 'sort' 'Date' %}">Date</option>
-                <option value="/search?{% url_replace 'sort' 'Title' %}">Title</option>
-              </select>
-              <script>
-                $(function(){
-                  // bind change event to select
-                  $('#sort').on('change', function () {
-                      var url = $(this).val(); // get selected value
-                      if (url) { // require a URL
-                          window.location = url; // redirect
-                      }
-                      return false;
-                  });
-                });
-            </script>
-            </div>
-            <div class="mt-3">
-              <label>Discipline</label>
+<link rel="stylesheet" href="{% static 'css/result.css' %}">
+<div class="container mt-2 mb-5">
+  <div class="row ng-scope">
+    <div class="col-md-3 col-md-push-9">
+      <div class="mt-2">
+        <label for="sort">SORT BY</label>
+        <select id="sort" class="form-select" aria-label="sort">
+          <option selected hidden value="/search?{% url_replace 'sort' request.GET.sort %}">{{ request.GET.sort }}
+          </option>
+          <option value="/search?{% url_replace 'sort' 'Relevance' %}">Relevance</option>
+          <option value="/search?{% url_replace 'sort' 'Date' %}">Date</option>
+          <option value="/search?{% url_replace 'sort' 'Title' %}">Title</option>
+        </select>
+        <script>
+          $(function () {
+            // bind change event to select
+            $('#sort').on('change', function () {
+              var url = $(this).val(); // get selected value
+              if (url) { // require a URL
+                window.location = url; // redirect
+              }
+              return false;
+            });
+          });
+        </script>
+      </div>
+      <div class="mt-3">
+        <label>Discipline</label>
 
-              {% for dis, hit_count, is_selected in discipline %}
-              <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="discipline" value="{{dis}}" id="{{dis}}" {% if is_selected %} checked {% endif %}>
-              <label class="form-check-label" for="{{dis}}">
-              {{dis}}
-              </label>
-              <span style="float:right">
-              {{hit_count}}
-              </span>
-              </div>
-              {% endfor %}
-              
-            </div>
-            <div class="mt-3">
-              <label>License</label>
-
-              {% for lic, hit_count, is_selected in license %}
-              <div class="form-check">
-              <input class="form-check-input" type="checkbox" name="license" value="{{lic}}" id="{{lic}}" {% if is_selected %} checked {% endif %}>
-              <label class="form-check-label" for="{{lic}}">
-              {{lic}}
-              </label>
-              <span style="float:right">
-              {{hit_count}}
-              </span>
-              </div>
-              {% endfor %}
-              
-            </div>
-            <div class="mt-3">
-              <label>Published</label>
-              <div class="ms-3">
-                <label for="startDate" class="form-label">From</label>
-                <input id="startDate" class="form-control" type="date" value="{{request.GET.startDate}}"/>
-              </div>
-              <div class="ms-3 mb-2">
-                <label for="endDate" class="form-label">To</label>
-                <input id="endDate" class="form-control" type="date" value="{{request.GET.endDate}}"/>
-              </div>
-            </div>
-
-            <script>
-              
-              $(function () {
-                var currentUrl = location.href;
-                let startDate = document.getElementById('startDate')
-                let endDate = document.getElementById('endDate')
-                var params = new URLSearchParams(window.location.search);
-                var field = params.get("field")
-                var q = params.get("q")
-                var sort = params.get("sort")
-                var inputs = document.getElementsByTagName('input');
-
-                $('input[type="checkbox"], input[type="date"]').change(function () {
-                  var startDateVal = startDate.value;
-                  var endDateVal = endDate.value;
-                  newparams = new URLSearchParams("");
-                  newparams.append("field", field);
-                  newparams.append("q", q);
-                  newparams.append("sort", sort);
-                  for(var i=0; i<inputs.length; i++){
-                    if(inputs[i].getAttribute('type')=='checkbox' && inputs[i].checked){
-                      newparams.append(inputs[i].name, inputs[i].value);
-                    };
-                  };
-                  newparams.append("startDate",startDateVal);
-                  newparams.append("endDate", endDateVal);
-                  newparams.append("createdStartDate", document.getElementById('CreatedStartDate').value)
-                  newparams.append("createdEndDate", document.getElementById('CreatedEndDate').value)
-                  newparams.append("modifiedStartDate", document.getElementById('ModifiedStartDate').value)
-                  newparams.append("modifiedEndDate", document.getElementById('ModifiedEndDate').value)
-                  var newUrl = window.location.origin 
-                        + window.location.pathname 
-                        + '?' + newparams.toString();
-                  window.location = newUrl;
-                });
-              });
-              </script>
-
-            <div class="mt-3">
-              <label>Data Entities</label>
-              <div class="mt-2 ms-3">
-                <label>Type</label>
-                  {% for t, hit_count, is_selected in type %}
-                  <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="type" value="{{t}}" id="{{t}}" {% if is_selected %} checked {% endif %}>
-                  <label class="form-check-label" for="{{t}}">
-                  {{t}}
-                  </label>
-                  <span style="float:right">
-                  {{hit_count}}
-                  </span>
-                  </div>
-                  {% endfor %}
-              </div>
-              <div class="mt-2 ms-3">
-                <label>Programming Language</label>
-                {% for p, hit_count, is_selected in programming %}
-                  <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="pro" value="{{p}}" id="{{p}}" {% if is_selected %} checked {% endif %}>
-                  <label class="form-check-label" for="{{p}}">
-                  {{p}}
-                  </label>
-                  <span style="float:right">
-                  {{hit_count}}
-                  </span>
-                  </div>
-                  {% endfor %}
-              </div>
-              <div class="mt-2 ms-3">
-                <label>Created</label>
-                <div class="ms-3">
-                  <label for="CreatedStartDate" class="form-label">From</label>
-                  <input id="CreatedStartDate" class="form-control" type="date" value="{{request.GET.createdStartDate}}"/>
-                </div>
-                <div class="ms-3 mb-2">
-                  <label for="CreatedEndDate" class="form-label">To</label>
-                  <input id="CreatedEndDate" class="form-control" type="date" value="{{request.GET.createdEndDate}}"/>
-                </div>
-              </div>
-              <div class="mt-2 ms-3">
-                <label>Modified</label>
-                <div class="ms-3">
-                  <label for="ModifiedStartDate" class="form-label">From</label>
-                  <input id="ModifiedStartDate" class="form-control" type="date" value="{{request.GET.modifiedStartDate}}"/>
-                </div>
-                <div class="ms-3 mb-2">
-                  <label for="ModifiedEndDate" class="form-label">To</label>
-                  <input id="ModifiedEndDate" class="form-control" type="date" value="{{request.GET.modifiedEndDate}}"/>
-                </div>
-              </div>
-            </div>
+        {% for dis, hit_count, is_selected in discipline %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="discipline" value="{{dis}}" id="{{dis}}"
+            {% if is_selected %} checked {% endif %}>
+          <label class="form-check-label" for="{{dis}}">
+            {{dis}}
+          </label>
+          <span style="float:right">
+            {{hit_count}}
+          </span>
         </div>
-        <div class="col-md-9 col-md-pull-3">
-          <div class="row mt-3">  
-          <p class="w-25 float:left"> {{resultset.paginator.count}} results</p>
-          <div class="w-75 ">
-            <nav aria-label="Page navigation example">
-              <ul class="pagination justify-content-end">
-                {% if resultset.has_previous %}
-                <li class="page-item">
-                  <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:-1 %}" aria-label="Previous">
-                    <span aria-hidden="true">&laquo;</span>
-                  </a>
-                </li>
-                {% endif %}
-                {% for p in resultset.paginator.num_pages|times %}
-                {% if request.GET.page|add:"0" == p %}
-                <li class="page-item"><a class="page-link" href="/search?{% url_replace 'page' p %}"><strong>{{p}}</strong></a></li>
-                {% else %}
-                <li class="page-item"><a class="page-link" href="/search?{% url_replace 'page' p %}">{{p}}</a></li>
-                {% endif %}
+        {% endfor %}
+
+      </div>
+      <div class="mt-3">
+        <label>Profile</label>
+
+        {% for pro, hit_count, is_selected in profile %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="profile" value="{{pro}}" id="{{pro}}"
+            {% if is_selected %} checked {% endif %}>
+          <label class="form-check-label" for="{{pro}}">
+            {{pro}}
+          </label>
+          <span style="float:right">
+            {{hit_count}}
+          </span>
+        </div>
+        {% endfor %}
+
+      </div>
+      <div class="mt-3">
+        <label>License</label>
+
+        {% for lic, hit_count, is_selected in license %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="license" value="{{lic}}" id="{{lic}}"
+            {% if is_selected %} checked {% endif %}>
+          <label class="form-check-label" for="{{lic}}">
+            {{lic}}
+          </label>
+          <span style="float:right">
+            {{hit_count}}
+          </span>
+        </div>
+        {% endfor %}
+
+      </div>
+      <div class="mt-3">
+        <label>Published</label>
+        <div class="ms-3">
+          <label for="startDate" class="form-label">From</label>
+          <input id="startDate" class="form-control" type="date" value="{{request.GET.startDate}}" />
+        </div>
+        <div class="ms-3 mb-2">
+          <label for="endDate" class="form-label">To</label>
+          <input id="endDate" class="form-control" type="date" value="{{request.GET.endDate}}" />
+        </div>
+      </div>
+
+      <script>
+        $(function () {
+          var currentUrl = location.href;
+          let startDate = document.getElementById('startDate')
+          let endDate = document.getElementById('endDate')
+          var params = new URLSearchParams(window.location.search);
+          var field = params.get("field")
+          var q = params.get("q")
+          var sort = params.get("sort")
+          var inputs = document.getElementsByTagName('input');
+
+          $('input[type="checkbox"], input[type="date"]').change(function () {
+            var startDateVal = startDate.value;
+            var endDateVal = endDate.value;
+            newparams = new URLSearchParams("");
+            newparams.append("field", field);
+            newparams.append("q", q);
+            newparams.append("sort", sort);
+            for (var i = 0; i < inputs.length; i++) {
+              if (inputs[i].getAttribute('type') == 'checkbox' && inputs[i].checked) {
+                newparams.append(inputs[i].name, inputs[i].value);
+              };
+            };
+            newparams.append("startDate", startDateVal);
+            newparams.append("endDate", endDateVal);
+            newparams.append("createdStartDate", document.getElementById('CreatedStartDate').value)
+            newparams.append("createdEndDate", document.getElementById('CreatedEndDate').value)
+            newparams.append("modifiedStartDate", document.getElementById('ModifiedStartDate').value)
+            newparams.append("modifiedEndDate", document.getElementById('ModifiedEndDate').value)
+            var newUrl = window.location.origin +
+              window.location.pathname +
+              '?' + newparams.toString();
+            window.location = newUrl;
+          });
+        });
+      </script>
+
+      <div class="mt-3">
+        <label>Data Entities</label>
+        <div class="mt-2 ms-3">
+          <label>Type</label>
+          {% for t, hit_count, is_selected in type %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="type" value="{{t}}" id="{{t}}" {% if is_selected %}
+              checked {% endif %}>
+            <label class="form-check-label" for="{{t}}">
+              {{t}}
+            </label>
+            <span style="float:right">
+              {{hit_count}}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="mt-2 ms-3">
+          <label>Programming Language</label>
+          {% for p, hit_count, is_selected in programming %}
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="pro" value="{{p}}" id="{{p}}" {% if is_selected %}
+              checked {% endif %}>
+            <label class="form-check-label" for="{{p}}">
+              {{p}}
+            </label>
+            <span style="float:right">
+              {{hit_count}}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="mt-2 ms-3">
+          <label>Created</label>
+          <div class="ms-3">
+            <label for="CreatedStartDate" class="form-label">From</label>
+            <input id="CreatedStartDate" class="form-control" type="date" value="{{request.GET.createdStartDate}}" />
+          </div>
+          <div class="ms-3 mb-2">
+            <label for="CreatedEndDate" class="form-label">To</label>
+            <input id="CreatedEndDate" class="form-control" type="date" value="{{request.GET.createdEndDate}}" />
+          </div>
+        </div>
+        <div class="mt-2 ms-3">
+          <label>Modified</label>
+          <div class="ms-3">
+            <label for="ModifiedStartDate" class="form-label">From</label>
+            <input id="ModifiedStartDate" class="form-control" type="date" value="{{request.GET.modifiedStartDate}}" />
+          </div>
+          <div class="ms-3 mb-2">
+            <label for="ModifiedEndDate" class="form-label">To</label>
+            <input id="ModifiedEndDate" class="form-control" type="date" value="{{request.GET.modifiedEndDate}}" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-9 col-md-pull-3">
+      <div class="row mt-3">
+        <p class="w-25 float:left"> {{total}} results</p>
+        <div class="w-75 ">
+          <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-end">
+              {% if request.GET.page|add:"0" > 1 %}
+              <li class="page-item">
+                <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:-1 %}"
+                  aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+              {% endif %}
+              {% for p in pages|times %}
+              {% if request.GET.page|add:"0" == p %}
+              <li class="page-item"><a class="page-link"
+                  href="/search?{% url_replace 'page' p %}"><strong>{{p}}</strong></a></li>
+              {% else %}
+              <li class="page-item"><a class="page-link" href="/search?{% url_replace 'page' p %}">{{p}}</a></li>
+              {% endif %}
+              {% endfor %}
+              {% if request.GET.page|add:"0" < pages %}
+              <li class="page-item">
+                <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:1 %}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+              {% endif %}
+
+            </ul>
+          </nav>
+        </div>
+      </div>
+      {% for result in resultset %}
+      <section class="search-result-item">
+        <div class="search-result-item-body">
+          <div class="row">
+            <div class="col-sm-12">
+              <h4 class="search-result-item-heading"><a href="/crate/{{result.id}}/">{{result.name}}</a></h4>
+              {% if result.keywords %}
+              <p class="keywords">
+                {% for keyword in result.keywords %}
+                <a href="/search?field=All&q={{keyword}}">{{keyword}}</a>&nbsp;&nbsp;
                 {% endfor %}
-                {% if resultset.has_next %}
-                <li class="page-item">
-                  <a class="page-link" href="/search?{% url_replace 'page' request.GET.page|add:1 %}" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-                {% endif %}
-                
-              </ul>
-            </nav>
+              </p>
+              {% else %}
+              <p class="keywords"></p>
+              {% endif %}
+              <p class="description">{{ result.description|linebreaksbr }}</p>
+              <p class="authors">
+                {% for author in result.authors.all %}
+                <a href="{{ author.ocrid }}">{{author.name}}</a>&nbsp;&nbsp;
+                {% endfor %}
+              </p>
+            </div>
           </div>
-          </div>
-            {% for result in resultset.object_list %}
-            <section class="search-result-item">
-              <div class="search-result-item-body">
-                  <div class="row">
-                      <div class="col-sm-12">
-                          <h4 class="search-result-item-heading"><a href="/crate/{{result.id}}/">{{result.name}}</a></h4>
-                          {% if result.keywords %}
-                          <p class="keywords">
-                            {% for keyword in result.keywords %}
-                            <a href="/search?field=All&q={{keyword}}">{{keyword}}</a>&nbsp;&nbsp;
-                            {% endfor %}
-                          </p>
-                          {% else %}
-                          <p class="keywords"></p>
-                          {% endif %}
-                          <p class="description">{{ result.description|linebreaksbr }}</p>
-                          <p class="authors">
-                            {% for author in result.authors.all %}
-                            <a href="{{ author.ocrid }}">{{author.name}}</a>&nbsp;&nbsp;
-                            {% endfor %}
-                          </p>
-                      </div>
-                  </div>
-              </div>
-            </section>
-            {% endfor %}
-            
         </div>
+      </section>
+      {% endfor %}
+
     </div>
-    </div>
+  </div>
+</div>
 
 {% endblock %}

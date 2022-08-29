@@ -77,12 +77,12 @@ WSGI_APPLICATION = 'registry.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'registry',
-        'USER': 'csimage',
-        'PASSWORD': '123456',
-        'HOST': '127.0.0.1',
-        'PORT': 5432,
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'PASSWORD': 'password',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 
@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ELASTICSEARCH_DSL={
     'default': {
-        'hosts': 'localhost:9200',
+        'hosts': 'elasticsearch:9200',
         'timeout': 30,
     },
 }

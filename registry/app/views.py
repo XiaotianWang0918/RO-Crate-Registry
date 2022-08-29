@@ -10,7 +10,6 @@ from elasticsearch_dsl import Q, Search
 import urllib.request
 from django.contrib import messages
 from django.template.loader import render_to_string
-from django.core.paginator import Paginator
 from app.facet import CrateSearch
 from django.db.models import Case, When
 from django.db.models.fields import IntegerField
@@ -30,6 +29,7 @@ def search(request):
         field = request.GET.get('field')
         disciplines = request.GET.getlist('discipline')
         licenses = request.GET.getlist('license')
+        profiles = request.GET.getlist('profile')
         types = request.GET.getlist('type')
         programs = request.GET.getlist('pro')
         startDate = request.GET.get('startDate')
@@ -39,7 +39,7 @@ def search(request):
         modifiedStartDate = request.GET.get('modifiedStartDate')
         modifiedEndDate = request.GET.get('modifiedEndDate')
         
-        filter = {"discipline":disciplines, "license":licenses, "type":types, "programmingLanguage":programs}
+        filter = {"discipline":disciplines, "license":licenses, "profile":profiles, "type":types, "programmingLanguage":programs}
         if field == "All":
             entry_query = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'name',
@@ -48,6 +48,7 @@ def search(request):
                 'keywords',
                 'identifier',
                 'discipline',
+                'profile',
                 ])
             entity_query = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.name',
@@ -98,7 +99,7 @@ def search(request):
                 'publisher.id',
                 ])))
             
-        elif field == "Types" or field == "Profiles": #TODO: Profiles
+        elif field == "Types":
             q = Q("nested", path="entities", query=(Q("multi_match", query=search, fuzziness="auto", fields=[
                 'entities.type',
                 ])))
@@ -112,13 +113,18 @@ def search(request):
             q = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'license',
                 ])
+        
+        elif field == "Profiles":
+            q = Q("multi_match", query=search, fuzziness="auto", fields=[
+                'profile',
+                ])
             
         elif field == "Disciplines":
             q = Q("multi_match", query=search, fuzziness="auto", fields=[
                 'discipline',
                 ])
         elif field == "Related":
-            q = Q("more_like_this", fields=[
+            q = Q(MoreLikeThis(fields=[
                 'name',
                 'keywords',
                 'discipline',
@@ -129,7 +135,7 @@ def search(request):
                         "_index": "crates",
                         "_id": search,
                     }
-                ], min_term_freq=1, minimum_should_match=5)
+                ],min_term_freq=1, min_doc_freq=1))
 
         datefilter = {}
         if startDate not in ("","undefined",None):
@@ -149,27 +155,36 @@ def search(request):
         if modifiedEndDate not in ("","undefined",None):
             modifiedfilter["lte"] = modifiedEndDate
         crate_search = CrateSearch("", filters=filter, q=q, datefilter=datefilter, created=createdfilter, modified=modifiedfilter)
-            
-        response = crate_search.execute()
-        resultSet = to_queryset(response) 
+        
         sort = request.GET.get('sort')
         if sort == "Date":
-            resultSet = resultSet.order_by('datePublished')
+            crate_search._s = crate_search._s.sort('datePublished')
         elif sort == "Title":
-            resultSet = resultSet.order_by('name')
-        paginator = Paginator(resultSet, 5)
+            crate_search._s = crate_search._s.sort('name')
+
         page_number = request.GET.get('page')
-        page_obj = paginator.get_page(page_number)
+        if page_number == ("" or None):
+            page_number = 1
+        page_number = int(page_number)
+        crate_search._s = crate_search._s[(page_number-1)*5: page_number*5]
+
+        response = crate_search.execute()
+        resultSet = to_queryset(response) 
+        total = response.hits.total.value
+        pages = (total-1) // 5 + 1
         return render(request, 'result.html', {
-            'resultset': page_obj, 
+            'resultset': resultSet, 
+            'total' : total,
+            'pages' : pages,
             'discipline':response.facets.discipline, 
             'license':response.facets.license,
+            'profile':response.facets.profile,
             'type': response.facets.type,
             'programming': response.facets.programmingLanguage,
             })
     search = request.POST.get("search")
     field = request.POST.get("field")
-    return redirect("/search?field=%s&q=%s&sort=Relevance"%(parse.quote_plus(field),parse.quote_plus(search)))
+    return redirect("/search?field=%s&q=%s&sort=Relevance"%(field,search))
 
 
 def detail(request, cid):
@@ -195,8 +210,8 @@ def detail(request, cid):
                 "_index": "crates",
                 "_id": str(cid),
             }
-        ], min_term_freq=1, minimum_should_match=5)
-    result = CrateDocument.search().query(related_query)
+        ], min_term_freq=1, min_doc_freq=1)
+    result = CrateDocument.search().query(related_query)[0:5]
     resultSet = result.to_queryset()
     authors = crate.authors.all()
     authorlist = []
@@ -208,7 +223,6 @@ def detail(request, cid):
         else:
             au['isocr'] = False
         authorlist.append(au)
-    print(authorlist)
     return render(request, 'detail.html', {'crate': crate, 'related': resultSet, 'authorlist':authorlist})
 
 def register(request):
@@ -268,6 +282,13 @@ def metaregister(request):
             else:
                 identifier.append(ro.root_dataset['identifier'])
         
+        #if exists:
+        for id in identifier:
+            res = Crate.objects.filter(identifier__contains=[id])
+            if len(res) != 0:
+                messages.warning(request, "RO-Crate already exists!", extra_tags="alert-warning")
+                return redirect("/crate/%s/"%res.first().id)
+        
         citation = None
         if "citation" in ro.root_dataset:
             ci, created = Citation.objects.get_or_create(id = ro.root_dataset['citation']['@id'], name = ro.root_dataset['citation']['name'])
@@ -276,6 +297,15 @@ def metaregister(request):
         
         organizations = Organization.objects.all()
         publisher = ro.publisher
+
+        profile = None
+        profileID = None
+        if "conformsTo" in ro.metadata:
+            profiles = ro.metadata["conformsTo"]
+            for pr in profiles:
+                if isinstance(pr, RO_Entity):
+                    profile = pr["name"]
+                    profileID = pr["@id"]
 
         return render(request, 'register_meta.html',{
             'name': ro.name,
@@ -290,6 +320,9 @@ def metaregister(request):
             'citation': citation,
             'publisher': publisher,
             'organizations': organizations,
+            'mode': "Rsegister",
+            'profile': profile,
+            'profileID': profileID,
         })
     
     #post
@@ -303,6 +336,8 @@ def metaregister(request):
     publisher = request.POST.get('publisher')
     citation_name = request.POST.get('citation_name')
     citation_id = request.POST.get('citation_id')
+    crate.profile = request.POST.get('profile_name')
+    crate.profileID = request.POST.get('profile_id')
     crate.keywords = request.POST.getlist("keywords[]")
     crate.identifier = request.POST.getlist('identifier[]')
     crate.discipline = request.POST.getlist('discipline[]')
@@ -392,3 +427,69 @@ def to_queryset(response):
     )
     qs = qs.order_by(preserved_order)
     return qs
+
+
+def edit(request, cid):
+    crate = Crate.objects.filter(id=cid).first()
+    people = People.objects.all()
+    organizations = Organization.objects.all()
+    if request.method == 'GET':
+        return render(request, 'register_meta.html',{
+                'id': cid,
+                'name': crate.name,
+                'url': crate.url,
+                'description': crate.description,
+                'datePublished': crate.datePublished,
+                'license': crate.license,
+                'authors': crate.authors.all(),
+                'keywords': crate.keywords,
+                'identifier': crate.identifier,
+                'people': people,
+                'citation': crate.citation,
+                'publisher': crate.publisher,
+                'organizations': organizations,
+                'profile':crate.profile,
+                'profileID': crate.profileID,
+                'mode': "Edit",
+            })
+
+    crate.description = request.POST.get('description')
+    crate.license = request.POST.get('license')
+    authors = request.POST.getlist("authors[]")
+    publisher = request.POST.get('publisher')
+    citation_name = request.POST.get('citation_name')
+    citation_id = request.POST.get('citation_id')
+    crate.keywords = request.POST.getlist("keywords[]")
+    crate.identifier = request.POST.getlist('identifier[]')
+    crate.discipline = request.POST.getlist('discipline[]')
+    crate.profile = request.POST.get('profile_name')
+    crate.profileID = request.POST.get('profile_id')
+    crate.save()
+    crate.authors.clear()
+    for au in authors:
+        aulist = au.split("|")
+        author = People.objects.filter(ocrid=aulist[0], name=aulist[1]).first()
+        if not crate.authors.filter(ocrid=aulist[0], name=aulist[1]).exists():
+            crate.authors.add(author)
+    
+    if publisher != "none":
+        pub = Organization.objects.filter(id=publisher).first()
+        if not crate.publisher.filter(id=publisher).exists():
+            crate.publisher.add(pub)
+
+    if citation_id != None and citation_id !="":
+        cit, created = Citation.objects.get_or_create(id=citation_id)
+        if created:
+            cit.name = citation_name
+        cit.save()
+        if not crate.citation.filter(id=citation_id):
+            crate.citation.add(cit)
+    
+    messages.success(request, "Edit Successed!", extra_tags="alert-success")
+    return redirect('/crate/%s'%crate.id)
+    
+def delete(request, cid):
+    crate = Crate.objects.filter(id=cid).first()
+    crate.delete()
+    messages.success(request, "Delete Successed!", extra_tags="alert-success")
+    return redirect('/')

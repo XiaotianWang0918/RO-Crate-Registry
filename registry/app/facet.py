@@ -11,6 +11,7 @@ class CrateSearch(FacetedSearch):
     facets = {
         'discipline': TermsFacet(field='discipline'),
         'license': TermsFacet(field='license'),
+        'profile': TermsFacet(field='profile'),
         'type': NestedFacet("entities", TermsFacet(field='entities.type')),
         'programmingLanguage': NestedFacet("entities", TermsFacet(field='entities.programmingLanguage')),
     }

@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date, datetime
 from rocrate.rocrate import ROCrate, Entity as RO_Entity, ContextEntity
 from django.contrib.postgres.fields import ArrayField
 import json
@@ -22,12 +23,13 @@ class Crate(models.Model):
         null=True,
         blank=True,
     )
-    models.CharField(max_length=128, null=True, blank=True)
     discipline =  ArrayField(
         models.CharField(max_length=128),
         null=True,
         blank=True,
     )
+    profile = models.CharField(max_length=128, null=True, blank=True)
+    profileID = models.CharField(max_length=128, null=True, blank=True)
 
 class Entity(models.Model):
     crate = models.ForeignKey(to="Crate", to_field="id", on_delete=models.CASCADE, related_name='entities')
@@ -41,12 +43,6 @@ class Entity(models.Model):
     dateCreated = models.DateTimeField(null=True, blank=True)
     dateModified = models.DateTimeField(null=True, blank=True)
     programmingLanguage = models.CharField(max_length=128, null=True, blank=True)
-
-# class Person(models.Model):
-#     id = models.CharField(max_length=128, primary_key=True)
-#     name = models.CharField(max_length=128)
-#     # class Meta:
-#     #     unique_together=(("ocrid","name"))
 
 class People(models.Model):
     ocrid = models.CharField(max_length=128)
@@ -68,58 +64,28 @@ class Citation(models.Model):
 #     for c in crates:
 #         c.delete()
 
-# def init_crate(file) -> Crate:
-#     rocrate = ROCrate(file)
-#     crate = Crate()
-#     crate.name = rocrate.name
-#     crate.description = rocrate.description
-#     crate.datePublished = rocrate.datePublished
-#     if isinstance(rocrate.license, RO_Entity):
-#         crate.license = rocrate.license['name']
-#     else:
-#         crate.license = rocrate.license
-
-#     crate.keywords = rocrate.keywords
-#     if "author" in rocrate.root_dataset:
+# def addTest(num, discipline):
+#     for i in range(1,num+1):
+#         crate = Crate()
+#         crate.name = "Test Case in %s No.%d"%(discipline,i)
+#         crate.description = "Test Case in %s No.%d"%(discipline,i)
+#         crate.datePublished = datetime.now()
+#         crate.license = "Apache-2.0"
+#         crate.keywords = ["test","%s"%discipline]
+#         crate.discipline = ["%s"%discipline]
+#         crate.url="#TestcaseIn%sNo%d"%(discipline, i)
+#         crate.identifier = ["#TestcaseIn%sNo%d"%(discipline, i)]
 #         crate.save()
-#         if isinstance(rocrate.root_dataset['author'], list):
-#             for author in rocrate.root_dataset['author']:
-#                 au, created = Person.objects.get_or_create(id = author['@id'], name = author['name'])
-#                 au.save()
-#                 crate.authors.add(au)
-#         else:
-#             au, created = Person.objects.get_or_create(id = rocrate.root_dataset['author']['@id'], name = rocrate.root_dataset['author']['name'])
-#             au.save()
-#             crate.authors.add(au)
-#     if "url" in rocrate.root_dataset:
-#         crate.url = rocrate.root_dataset['url']
-#     if "citation" in rocrate.root_dataset:
-#         crate.citation = rocrate.root_dataset['citation']['@id']
-#         crate.citation_name = rocrate.root_dataset['citation']['name']
-#     if "identifier" in rocrate.root_dataset:
-#         crate.identifier = rocrate.root_dataset['identifier']
-#     crate.save()
+#         author = People.objects.filter(ocrid="Test111", name="Xiaotian Wang").first()
+#         crate.authors.add(author)
+#         entity = Entity()
+#         entity.entity_id = "Data Entity of Test Case in %s No.%d"%(discipline,i)
+#         entity.name = "Data Entity of Test Case in %s No.%d"%(discipline,i)
+#         entity.type=["File", "ComputationalWorkflow"]
+#         entity.programmingLanguage = "Common Workflow Language"
+#         entity.dateCreated = datetime.now()
+#         entity.dateModified = datetime.now()
+#         entity.crate = crate
+#         entity.save()
 
-#     for entity in rocrate.data_entities:
-#         de = Entity()
-#         de.crate = crate
-#         de.entity_id = entity['@id']
-#         if "name" in entity:
-#             de.name = entity['name']
-#         if "description" in entity:
-#             de.description = entity['description']
-#         type = entity['@type']
-#         if isinstance(type, list):
-#             de.type = type
-#         else:
-#             de.type = [type]
-        
-#         if "dateCreated" in entity:
-#             de.dateCreated = entity['dateCreated']
-#         if "dateModified" in entity:
-#             de.dateModified = entity['dateModified']
-#         if "programmingLanguage" in entity:
-#             de.programmingLanguage = entity['programmingLanguage']['name']
-#         de.save()
-    
-#     return crate
+#         print("Add Test Cases Success")

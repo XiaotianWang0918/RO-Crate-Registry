@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Research Object Crate for Metagenomic GEMs from Assembly</title>
+  <script type="application/ld+json">{
+  "@context": "https://w3id.org/ro/crate/1.1/context",
+  "@graph": [
+    {
+      "@id": "ro-crate-metadata.json",
+      "@type": "CreativeWork",
+      "about": {
+        "@id": "./"
+      },
+      "conformsTo": [
+        {
+          "@id": "https://w3id.org/ro/crate/1.1"
+        },
+        {
+          "@id": "https://about.workflowhub.eu/Workflow-RO-Crate/"
+        }
+      ]
+    },
+    {
+      "@id": "ro-crate-preview.html",
+      "@type": "CreativeWork",
+      "about": {
+        "@id": "./"
+      }
+    },
+    {
+      "@id": "./",
+      "@type": "Dataset",
+      "mainEntity": {
+        "@id": "workflow_metagenomics_GEM.cwl"
+      },
+      "author": [
+        {
+          "@id": "https://orcid.org/0000-0001-9524-5964"
+        },
+        {
+          "@id": "https://orcid.org/0000-0001-8172-8981"
+        }
+      ],
+      "provider": [
+        {
+          "@id": "#project-16"
+        }
+      ],
+      "license": "CC0-1.0",
+      "identifier": "https://workflowhub.eu/workflows/372?version=1",
+      "url": "https://workflowhub.eu/workflows/372/ro_crate?version=1",
+      "name": "Research Object Crate for Metagenomic GEMs from Assembly",
+      "description": "Workflow for Metagenomics from bins to metabolic model.<br>\r\nSummary\r\n  - Prodigal gene prediction\r\n  - CarveMe genome scale metabolic model reconstruction\r\n  - MEMOTE for metabolic model testing\r\n  - SMETANA Species METabolic interaction ANAlysis\r\n\r\nOther UNLOCK workflows on WorkflowHub: https://workflowhub.eu/projects/16/workflows?view=default<br><br>\r\n\r\n**All tool CWL files and other workflows can be found here:**<br>\r\n  Tools: https://gitlab.com/m-unlock/cwl<br>\r\n  Workflows: https://gitlab.com/m-unlock/cwl/workflows<br>\r\n\r\n**How to setup and use an UNLOCK workflow:**<br>\r\nhttps://m-unlock.gitlab.io/docs/setup/setup.html<br>\r\n",
+      "isBasedOn": "https://gitlab.com/m-unlock/cwl/-/blob/master/cwl/workflows/workflow_metagenomics_GEM.cwl",
+      "sdDatePublished": "2022-08-05 23:13:29 +0100",
+      "creativeWorkStatus": "Work-in-progress",
+      "hasPart": [
+        {
+          "@id": "workflow_metagenomics_GEM.cwl"
+        },
+        {
+          "@id": "workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg"
+        }
+      ]
+    },
+    {
+      "@id": "workflow_metagenomics_GEM.cwl",
+      "@type": [
+        "File",
+        "SoftwareSourceCode",
+        "ComputationalWorkflow"
+      ],
+      "contentSize": 7276,
+      "programmingLanguage": {
+        "@id": "#cwl"
+      },
+      "image": {
+        "@id": "workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg"
+      },
+      "dct:conformsTo": "https://bioschemas.org/profiles/ComputationalWorkflow/1.0-RELEASE/",
+      "description": "Workflow for Metagenomics from bins to metabolic model.<br>\r\nSummary\r\n  - Prodigal gene prediction\r\n  - CarveMe genome scale metabolic model reconstruction\r\n  - MEMOTE for metabolic model testing\r\n  - SMETANA Species METabolic interaction ANAlysis\r\n\r\nOther UNLOCK workflows on WorkflowHub: https://workflowhub.eu/projects/16/workflows?view=default<br><br>\r\n\r\n**All tool CWL files and other workflows can be found here:**<br>\r\n  Tools: https://gitlab.com/m-unlock/cwl<br>\r\n  Workflows: https://gitlab.com/m-unlock/cwl/workflows<br>\r\n\r\n**How to setup and use an UNLOCK workflow:**<br>\r\nhttps://m-unlock.gitlab.io/docs/setup/setup.html<br>\r\n",
+      "name": "Metagenomic GEMs from Assembly",
+      "url": "https://workflowhub.eu/workflows/372?version=1",
+      "keywords": "Metagenomics, carveme, Genomics, memote, GEM",
+      "version": 1,
+      "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "creator": [
+        {
+          "@id": "https://workflowhub.eu/people/84"
+        },
+        {
+          "@id": "https://workflowhub.eu/people/46"
+        }
+      ],
+      "producer": {
+        "@id": "https://workflowhub.eu/projects/16"
+      },
+      "dateCreated": "2022-07-07T08:23:15Z",
+      "dateModified": "2022-07-11T09:50:45Z",
+      "isPartOf": [
+
+      ],
+      "input": [
+        {
+          "@id": "#metagenomic_gems_from_assembly-inputs-identifier"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-inputs-bins"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-inputs-solver"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-inputs-threads"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-inputs-destination"
+        }
+      ],
+      "output": [
+        {
+          "@id": "#metagenomic_gems_from_assembly-outputs-carveme_gems_folder"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-outputs-protein_fasta_folder"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-outputs-memote_folder"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-outputs-smetana_output"
+        },
+        {
+          "@id": "#metagenomic_gems_from_assembly-outputs-gemstats_out"
+        }
+      ],
+      "sdPublisher": {
+        "@id": "https://about.workflowhub.eu/"
+      }
+    },
+    {
+      "@id": "workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg",
+      "@type": [
+        "File",
+        "ImageObject",
+        "WorkflowSketch"
+      ],
+      "contentSize": 29095
+    },
+    {
+      "@id": "https://about.workflowhub.eu/Workflow-RO-Crate/",
+      "@type": "CreativeWork",
+      "name": "Workflow RO-Crate Profile",
+      "version": "0.2.0"
+    },
+    {
+      "@id": "https://orcid.org/0000-0001-9524-5964",
+      "@type": "Person",
+      "name": "Bart Nijsse",
+      "identifier": "https://orcid.org/0000-0001-9524-5964"
+    },
+    {
+      "@id": "https://orcid.org/0000-0001-8172-8981",
+      "@type": "Person",
+      "name": "Jasper Koehorst",
+      "identifier": "https://orcid.org/0000-0001-8172-8981"
+    },
+    {
+      "@id": "#project-16",
+      "@type": "Organization",
+      "name": "UNLOCK",
+      "identifier": "https://workflowhub.eu/projects/16",
+      "url": "https://m-unlock.nl"
+    },
+    {
+      "@id": "https://workflowhub.eu/people/84",
+      "@type": "Person",
+      "name": "Bart Nijsse"
+    },
+    {
+      "@id": "https://workflowhub.eu/people/46",
+      "@type": "Person",
+      "name": "Jasper Koehorst"
+    },
+    {
+      "@id": "https://workflowhub.eu/projects/16",
+      "@type": [
+        "Project",
+        "Organization"
+      ],
+      "name": "UNLOCK"
+    },
+    {
+      "@id": "#cwl",
+      "@type": "ComputerLanguage",
+      "name": "Common Workflow Language",
+      "alternateName": "CWL",
+      "identifier": {
+        "@id": "https://w3id.org/cwl/v1.0/"
+      },
+      "url": {
+        "@id": "https://www.commonwl.org/"
+      }
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-inputs-identifier",
+      "@type": "FormalParameter",
+      "name": "Identifier used",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-inputs-bins",
+      "@type": "FormalParameter",
+      "name": "Genome/bin",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-inputs-solver",
+      "@type": "FormalParameter",
+      "name": "solver",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-inputs-threads",
+      "@type": "FormalParameter",
+      "name": "number of threads",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-inputs-destination",
+      "@type": "FormalParameter",
+      "name": "Output Destination (prov only)",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-outputs-carveme_gems_folder",
+      "@type": "FormalParameter",
+      "name": "CarveMe GEMs folder",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-outputs-protein_fasta_folder",
+      "@type": "FormalParameter",
+      "name": "Protein files folder",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-outputs-memote_folder",
+      "@type": "FormalParameter",
+      "name": "MEMOTE outputs folder",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-outputs-smetana_output",
+      "@type": "FormalParameter",
+      "name": "SMETANA output",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "#metagenomic_gems_from_assembly-outputs-gemstats_out",
+      "@type": "FormalParameter",
+      "name": "GEMstats",
+      "dct:conformsTo": "https://bioschemas.org/profiles/FormalParameter/1.0-RELEASE/"
+    },
+    {
+      "@id": "https://about.workflowhub.eu/",
+      "@type": "Organization",
+      "name": "WorkflowHub",
+      "url": "https://about.workflowhub.eu/"
+    }
+  ]
+}</script>
+  <meta name="generator" content="https://github.com/fbacall/ro-crate-ruby">
+  <meta name="keywords" content="RO-Crate">
+  <style type="text/css">
+    html {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: sans-serif;
+      color: #333;
+      font-size: 14px;
+      background: #eee;
+      margin: 0;
+      padding: 0;
+    }
+
+    #wrapper {
+      max-width: 1200px;
+      margin: auto;
+      background: #fff;
+      padding: 1em;
+    }
+
+    .data-entity {
+      margin: 0.5em 0;
+      background: #fafafa;
+      border-left: 3px solid #ddd;
+      padding: 0.5em;
+    }
+
+    .main-workflow {
+      background: #bddfff;
+      border-color: #a2cdff !important;
+    }
+
+    dt {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div id="wrapper">
+<h1>Research Object Crate for Metagenomic GEMs from Assembly</h1>
+
+  Original URL: <a href="https://workflowhub.eu/workflows/372/ro_crate?version=1" target="_blank">https://workflowhub.eu/workflows/372/ro_crate?version=1</a>
+
+
+  <img src="workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg" style="width: 100%;"/>
+
+<p>
+  Workflow for Metagenomics from bins to metabolic model.<br>
+Summary
+  - Prodigal gene prediction
+  - CarveMe genome scale metabolic model reconstruction
+  - MEMOTE for metabolic model testing
+  - SMETANA Species METabolic interaction ANAlysis
+
+Other UNLOCK workflows on WorkflowHub: https://workflowhub.eu/projects/16/workflows?view=default<br><br>
+
+**All tool CWL files and other workflows can be found here:**<br>
+  Tools: https://gitlab.com/m-unlock/cwl<br>
+  Workflows: https://gitlab.com/m-unlock/cwl/workflows<br>
+
+**How to setup and use an UNLOCK workflow:**<br>
+https://m-unlock.gitlab.io/docs/setup/setup.html<br>
+
+</p>
+  
+<dl>
+  
+    <dt>Author</dt>
+    <dd><a href="https://orcid.org/0000-0001-9524-5964" target="_blank">Bart Nijsse</a>, <a href="https://orcid.org/0000-0001-8172-8981" target="_blank">Jasper Koehorst</a></dd>
+  
+  
+  
+  
+    <dt>License</dt>
+    <dd>CC0-1.0</dd>
+  
+</dl>
+
+<h2>Contents</h2>
+<div id="contents">
+  
+    <div class="data-entity main-workflow" id="__data_entity_workflow_metagenomics_GEM.cwl">
+      
+        <strong>Main Workflow: </strong>
+      
+      
+      
+      <a class="data-entity-link" href="workflow_metagenomics_GEM.cwl">Metagenomic GEMs from Assembly</a>
+      
+        <br/>Size: 7276 bytes
+      
+      
+    </div>
+  
+    <div class="data-entity" id="__data_entity_workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg">
+      
+      
+        <strong>Main Workflow Diagram: </strong>
+      
+      
+      <a class="data-entity-link" href="workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg">workflow-372-dfc8e9c43ea7eaa418b01496b0f551a96914a83a-diagram.svg</a>
+      
+        <br/>Size: 29095 bytes
+      
+      
+    </div>
+  
+</div>
+</div>
+</body>
+</html>

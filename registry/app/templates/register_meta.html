@@ -1,60 +1,65 @@
 {% extends 'layout.html' %}
 {% load static %}
 
-{% block title %} RO-Crate Registry - Register{% endblock title %}
+{% block title %} RO-Crate Registry - {{mode}}{% endblock title %}
+
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/register_meta.css' %}" >
+<link rel="stylesheet" href="{% static 'css/register_meta.css' %}">
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">RO-Crate Registry</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         {% comment %} <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
             Dropdown
           </a>
           <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="#">Action</a></li>
             <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><hr class="dropdown-divider"></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
             <li><a class="dropdown-item" href="#">Something else here</a></li>
           </ul>
         </li> {% endcomment %}
-        
+
         <form method="post" class="d-flex" action="/search">
-        {% csrf_token %}
-        <div class="input-group mx-auto" style="width: 500px">
-          <select class="form-select float:left" name="field">
-            <option selected>All</option>
-            <option>Person</option>
-            <option>Organizations</option>
-            <option>Projects</option>
-            <option>Publications</option>
-            <option>Data Entities</option>
-            <option>Types</option>
-            <option>Profiles</option>
-            <option>Licenses</option>
-            <option>Disciplines</option>
-            <option>Programming Languages</option>
-          </select>
-          <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
-            <input type="search" name="search" class="form-control" value="{{ request.GET.q }}"/>
+          {% csrf_token %}
+          <div class="input-group mx-auto" style="width: 500px">
+            <select class="form-select float:left" name="field">
+              <option selected>All</option>
+              <option>Person</option>
+              <option>Organizations</option>
+              <option>Projects</option>
+              <option>Publications</option>
+              <option>Data Entities</option>
+              <option>Types</option>
+              <option>Profiles</option>
+              <option>Licenses</option>
+              <option>Disciplines</option>
+              <option>Programming Languages</option>
+            </select>
+            <div class="form-outline border rounded mx-auto bg-body" style="width: 300px">
+              <input type="search" name="search" class="form-control" value="{{ request.GET.q }}" />
+            </div>
+            <button type="submit" class="btn btn-primary mx-auto float:right">
+              <i class="fas fa-search"></i>
+            </button>
           </div>
-          <button type="submit" class="btn btn-primary mx-auto float:right">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
-      </form>
+        </form>
       </ul>
 
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a class="nav-link"  href="#">Help</a>
+          <a class="nav-link" href="#">Help</a>
         </li>
         {% comment %} <li class="nav-item">
           <a class="nav-link" href="#">Register</a>
@@ -69,8 +74,8 @@
 {% include 'messages.html' %}
 
 <div class="container mt-4 mb-4 bg-white">
-<form method="post">
-  {% csrf_token %}
+  <form method="post">
+    {% csrf_token %}
     <div class="form-group col-md-6 mb-3">
       <label for="name">Name</label>
       <input type="text" class="form-control" name="name" value="{{name}}" readonly>
@@ -83,7 +88,7 @@
       <label for="description">Description</label>
       <textarea type="text" class="form-control" name="description"> {{description}}</textarea>
     </div>
-    
+
     <div class="form-group col-md-6 mb-3">
       <label for="datePublished">DatePublished</label>
       <input type="datetime" class="form-control" name="datePublished" value="{{datePublished}}" readonly>
@@ -100,76 +105,98 @@
       <label for="authors">Authors</label>
       <div class="input-group" id="author_select">
         <div class="form-group col-md-6">
-          <select class="form-select" id="author" name="authors[]" multiple data-allow-clear="true" data-clear-end="true" data-full-width="false" data-suggestions-threshold="0">
-              <option disabled hidden value="">Choose a tag...</option>
-              {% for person in people %}
-              {% if person in authors %}
-              <option value="{{person.ocrid}}|{{person.name}}" selected="selected">{{person.name}}</option>
-              {% else %}
-              <option value="{{person.ocrid}}|{{person.name}}">{{person.name}}</option>
-              {% endif %}
-              {% endfor %}
+          <select class="form-select" id="author" name="authors[]" multiple data-allow-clear="true"
+            data-clear-end="true" data-full-width="false" data-suggestions-threshold="0">
+            <option disabled hidden value="">Choose a tag...</option>
+            {% for person in people %}
+            {% if person in authors %}
+            <option value="{{person.ocrid}}|{{person.name}}" selected="selected">{{person.name}}</option>
+            {% else %}
+            <option value="{{person.ocrid}}|{{person.name}}">{{person.name}}</option>
+            {% endif %}
+            {% endfor %}
           </select>
         </div>
-        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#AuthorModal">Add</button>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal"
+          data-bs-target="#AuthorModal">Add</button>
       </div>
-    <script type="module">
-      import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+      <script type="module">
+        import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
       Tags.init();
     </script>
     </div>
     <div class="form-group mb-3">
       <label for="identifier">Publisher</label>
       <div class="input-group" id="publisher_select">
-      <div class="form-group col-md-6">
-      <select class="form-select" aria-label="Default select example" name="publisher">
-        <option value="none" selected>Select an Existing Organization</option>
-        {% for organization in organizations %}
-        <option value="{{organization.id}}">{{organization.name}}</option>
-        {% endfor %}
-      </select>
-      </div>
-      <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#PublisherModal">Add</button>
+        <div class="form-group col-md-6">
+          <select class="form-select" aria-label="Default select example" name="publisher">
+            <option value="none" selected>Select an Existing Organization</option>
+            {% for organization in organizations %}
+            <option value="{{organization.id}}">{{organization.name}}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal"
+          data-bs-target="#PublisherModal">Add</button>
       </div>
     </div>
     <div class="form-group col-md-6 mb-3">
       <label for="citation">Citation</label>
-      <input type="text" class="form-control" name="citation_id" {% if citation != none %} value="{{citation.id}}" {% endif %} placeholder="DOI identifier">
+      <input type="text" class="form-control" name="citation_id" {% if citation != none %} value="{{citation.id}}"
+        {% endif %} placeholder="DOI identifier">
     </div>
     <div class="form-group col-md-6 mb-3">
-      <input type="text" class="form-control" name="citation_name" {% if citation != none %} value="{{citation.name}}" {% endif %} placeholder="name">
+      <input type="text" class="form-control" name="citation_name" {% if citation != none %} value="{{citation.name}}"
+        {% endif %} placeholder="name">
     </div>
-      <div class="form-group col-md-6 mb-3">
-        <label for="keywords">Keywords</label>
-        <select class="form-select" id="keywords" name="keywords[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
-          <option disabled hidden value="">Add a tag...</option>
-          {% for keyword in keywords %}
-          <option value="{{keyword}}" selected="selected">{{keyword}}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="form-group col-md-6 mb-3">
-        <script type="module">
-          import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
+
+    <div class="form-group col-md-6 mb-3">
+      <label for="citation">Profile</label>
+      <input type="text" class="form-control" name="profile_id" {% if profileID != none %} value="{{profileID}}"
+        {% endif %} placeholder="id">
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <input type="text" class="form-control" name="profile_name" {% if profile != none %} value="{{profile}}"
+        {% endif %} placeholder="name">
+    </div>
+
+    <div class="form-group col-md-6 mb-3">
+      <label for="keywords">Keywords</label>
+      <select class="form-select" id="keywords" name="keywords[]" multiple data-allow-new="true" data-allow-clear="true"
+        data-clear-end="true">
+        <option disabled hidden value="">Add a tag...</option>
+        {% for keyword in keywords %}
+        <option value="{{keyword}}" selected="selected">{{keyword}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <script type="module">
+        import Tags from "https://cdn.jsdelivr.net/gh/lekoala/bootstrap5-tags@master/tags.js";
           Tags.init();
         </script>
-        <label for="identifier">Identifier</label>
-        <select class="form-select" id="identifier" name="identifier[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
-          <option disabled hidden value="">Choose a tag...</option>
-          {% for iden in identifier %}
-          <option value="{{iden}}" selected="selected">{{iden}}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="form-group col-md-6 mb-3">
-        <label for="discipline">Discipline</label>
-        <select class="form-select" id="discipline" name="discipline[]" multiple data-allow-new="true" data-allow-clear="true" data-clear-end="true">
-          <option disabled hidden value="">Add a discipline...</option>
-          
-        </select>
-      </div>
+      <label for="identifier">Identifier</label>
+      <select class="form-select" id="identifier" name="identifier[]" multiple data-allow-new="true"
+        data-allow-clear="true" data-clear-end="true">
+        <option disabled hidden value="">Choose a tag...</option>
+        {% for iden in identifier %}
+        <option value="{{iden}}" selected="selected">{{iden}}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group col-md-6 mb-3">
+      <label for="discipline">Discipline</label>
+      <select class="form-select" id="discipline" name="discipline[]" multiple data-allow-new="true"
+        data-allow-clear="true" data-clear-end="true">
+        <option disabled hidden value="">Add a discipline...</option>
+
+      </select>
+    </div>
 
     <button type="submit" class="btn btn-primary mt-3 mb-3">Submit</button>
+    {% if mode == "Edit" %}
+    <a href="/crate/{{id}}/delete" class="btn btn-primary mt-3 mb-3" role="button">Delete</a>
+    {% endif %}
   </form>
 </div>
 
@@ -194,7 +221,7 @@
             <input class="form-control" name="author_name">
           </div>
           {% for author in authors %}
-          <input type="hidden" name="authors[]", value={{author.ocrid}}>
+          <input type="hidden" name="authors[]" , value={{author.ocrid}}>
           {% endfor %}
         </form>
       </div>
@@ -215,25 +242,25 @@
       var serializedData = $(this).serialize();
       // make POST ajax call
       $.ajax({
-          type: 'POST',
-          url: "{% url 'save_author' %}",
-          data: serializedData,
-          success: function (response) {
-              // on successfull creating object
-              // 1. clear the form.
-              // 2. hide myModal
-              // 3. update authors
-              $("#saveauthor").trigger('reset');
-              myModal.hide();
-              //$('.modal-backdrop').remove();
-              $('#author_select').html(response);
-          },
-          error: function (response) {
-              // alert the error if any error occured
-              alert(response["responseJSON"]["error"]);
-          }
+        type: 'POST',
+        url: "{% url 'save_author' %}",
+        data: serializedData,
+        success: function (response) {
+          // on successfull creating object
+          // 1. clear the form.
+          // 2. hide myModal
+          // 3. update authors
+          $("#saveauthor").trigger('reset');
+          myModal.hide();
+          //$('.modal-backdrop').remove();
+          $('#author_select').html(response);
+        },
+        error: function (response) {
+          // alert the error if any error occured
+          alert(response["responseJSON"]["error"]);
+        }
       });
-  });
+    });
   </script>
 </div>
 
@@ -274,26 +301,25 @@
       var serializedData = $(this).serialize();
       // make POST ajax call
       $.ajax({
-          type: 'POST',
-          url: "{% url 'save_publisher' %}",
-          data: serializedData,
-          success: function (response) {
-              // on successfull creating object
-              // 1. clear the form.
-              // 2. hide myModal
-              // 3. update authors
-              $("#savepublisher").trigger('reset');
-              myModal2.hide();
-              //$('.modal-backdrop').remove();
-              $('#publisher_select').html(response);
-          },
-          error: function (response) {
-              // alert the error if any error occured
-              alert(response["responseJSON"]["error"]);
-          }
+        type: 'POST',
+        url: "{% url 'save_publisher' %}",
+        data: serializedData,
+        success: function (response) {
+          // on successfull creating object
+          // 1. clear the form.
+          // 2. hide myModal
+          // 3. update authors
+          $("#savepublisher").trigger('reset');
+          myModal2.hide();
+          //$('.modal-backdrop').remove();
+          $('#publisher_select').html(response);
+        },
+        error: function (response) {
+          // alert the error if any error occured
+          alert(response["responseJSON"]["error"]);
+        }
       });
-  });
-
+    });
   </script>
 </div>
 
